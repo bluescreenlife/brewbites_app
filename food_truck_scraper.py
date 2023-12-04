@@ -107,7 +107,7 @@ def fifty_six():
     soup = BeautifulSoup(html, "html.parser")
     schedule = soup.find("div", class_="tribe-events-calendar-month__day tribe-events-calendar-month__day--current")
     truck = schedule.select_one('a:-soup-contains("Food")').get_text().split(":")[1].strip()
-    print(truck)
+    return truck
 
 def bent(): # no current trucks listed, check later
     response = requests.get("https://www.bentbrewstillery.com/")
@@ -135,7 +135,7 @@ def sociable_ciderwerks():
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find("a", href="/sociablefoodtruck").get_text().strip()
-    print(element)
+    return element
 
 def insight():
     response = requests.get("https://www.insightbrewing.com/food-trucks-events")
@@ -145,4 +145,7 @@ def insight():
     truck = element.find()
     print(element)
 
-print(date_str)
+print(f"Food trucks around town today:\n"
+      f"Bauhaus: {bauhaus()}\n"
+      f"56: {fifty_six()}\n"
+      f"Sociable: {sociable_ciderwerks()}")
