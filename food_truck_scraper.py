@@ -3,9 +3,19 @@ import requests
 from bs4 import BeautifulSoup
 import datetime
 import html
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+
+chrome_options = webdriver.ChromeOptions()
+chrome_options.add_experimental_option("detach", True)
+
+driver = webdriver.Chrome(options=chrome_options)
 
 current_date_time = datetime.datetime.now()
 today = current_date_time.strftime("%A")
+today_num = current_date_time.strftime("%d")
+if today_num[0] == "0":
+    today_num = today_num[1]
 date_str = current_date_time.strftime("%Y-%m-%d")
 
 brewery_data = [
@@ -145,7 +155,15 @@ def insight():
     truck = element.find()
     print(element)
 
+def inbound():
+    driver.get("https://inboundbrew.co/inbound-brewco-food-trucks")
+    today_element = driver.find_element(By.CLASS_NAME, "today")
+    truck_element = today_element.find_element(By.TAG_NAME, "img")
+    truck = truck_element.get_attribute("alt")
+    return truck
+
 print(f"Food trucks around town today:\n"
       f"Bauhaus: {bauhaus()}\n"
       f"56: {fifty_six()}\n"
-      f"Sociable: {sociable_ciderwerks()}")
+      f"Sociable: {sociable_ciderwerks()}"
+      f"Inbound: {inbound()}")
