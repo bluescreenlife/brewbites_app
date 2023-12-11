@@ -1,8 +1,7 @@
-from tkinter.ttk import Style
+'''Retrieves local brewery food trucks operating today in the Twin Cities, MN.'''
 import requests
 from bs4 import BeautifulSoup
 import datetime
-import html
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -45,9 +44,12 @@ def fifty_six():
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     schedule = soup.find("div", id=f"tribe-events-calendar-mobile-day-{date_str_no_zeros}")
-    truck = schedule.select_one('a:-soup-contains("Food")')
-    if truck:
-        return truck.get_text().split(":")[1].strip()
+    if schedule:
+        truck = schedule.select_one('a:-soup-contains("Food")')
+        if truck:
+            return truck.get_text().split(":")[1].strip()
+        else:
+            return "No truck listed for today."
     else:
         return "No truck listed for today."
 
@@ -99,6 +101,21 @@ def fair_state(): # no current trucks listed, check back later
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find()
     print(element)
+
+def bad_weather(): # may need to switch to webdriver...
+    response = requests.get(f"https://www.badweatherbrewery.com/events?view=calendar&month={current_date_time.strftime('%m-%Y')}")
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+    calendar = soup.find("div", class_="yui3-u-1")
+    # today_element = calendar.find("div", class_="marker-daynum", string=today_num)
+    # day_events = element.next_element
+    return calendar
+
+    # driver = webdriver_init()
+    # driver.get(f"https://www.badweatherbrewery.com/events?view=calendar&month={current_date_time.strftime('%m-%Y')}")
+    # today_element = driver.find_element(By.XPATH, f'//div[@class="marker-daynum" and text()={today_num}]')
+    # # day_events = element.next_element
+    # return today_element
 
 # selenium webdriver functions: WORKING
 
