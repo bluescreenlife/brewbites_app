@@ -79,6 +79,21 @@ def headflyer():
     else:
         return "No truck listed for today."
     
+def blackstack():
+    response = requests.get("https://www.blackstackbrewing.com/events")
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+
+    if today_num[0] == "0":
+        today_num_no_zero = today_num[1]
+        date_element = soup.find("div", attrs={'data-hook':f'calendar-day-{today_num_no_zero}'})
+    else:
+        date_element = soup.find("div", attrs={'data-hook':f'calendar-day-{today_num}'})
+    
+    truck = date_element.find("div", attrs={'data-hook':'cell-event-title'}).get_text()
+    return(truck)
+
+    
 # beautifulsoup functions: IN PROGRESS
 
 def bent(): # no current trucks listed, check later
@@ -176,4 +191,5 @@ print(f"Food trucks around town today:\n"
       f"Sociable: {sociable_ciderwerks()}\n"
       f"Headflyer: {headflyer()}\n"
       f"Lake Monster: {lake_monster()}\n"
-      f"Inbound: {inbound()}")
+      f"Inbound: {inbound()}\n"
+      f"Blackstack: {blackstack()}")
