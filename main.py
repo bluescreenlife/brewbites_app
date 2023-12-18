@@ -9,11 +9,13 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import time
+import re
 
 # webdriver setup
 def webdriver_init():
     chromedriver = Service("/Users/andrew/Developer/chromedriver")
     chrome_options = webdriver.ChromeOptions()
+    chrome_options.add_argument("--headless")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(service=chromedriver, options=chrome_options)
     return driver
@@ -93,7 +95,7 @@ def blackstack():
     truck = date_element.find("div", attrs={'data-hook':'cell-event-title'}).get_text()
     return(truck)
 
-    
+
 # beautifulsoup functions: IN PROGRESS
 
 def bent(): # no current trucks listed, check later
@@ -132,6 +134,7 @@ def bad_weather(): # may need to switch to webdriver...
     # # day_events = element.next_element
     # return today_element
 
+
 # selenium webdriver functions: WORKING
 
 def inbound():
@@ -146,6 +149,29 @@ def inbound():
         return "No truck listed for today."
     finally:
         driver.close()
+
+def steeltoe():
+    driver = webdriver_init()
+    driver.get("https://www.steeltoebrewing.com/")
+
+    truck = ""
+    pop_up = ""
+
+    if today_num[0] == "0":
+        today_num_no_zero = today_num[1]
+        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
+    else:
+        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
+
+    grandparent_element = element.find_element(By.XPATH, "../..")
+
+    try:
+        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text
+        driver.close()
+        return truck
+    except NoSuchElementException:
+        return "No food truck listed for today."
+    
 
 # selenium webdriver functions: IN PROGRESS
 
@@ -182,14 +208,16 @@ def insight(): # skipping for now, complicated
     expand_button = driver.find_element(By.XPATH, '//*[@id="2023-12-08"]/div/div/div/div/div/div/div/button')
     expand_button.click()
 
-
-# print food trucks 
-
-print(f"Food trucks around town today:\n"
-      f"Bauhaus: {bauhaus()}\n"
-      f"56: {fifty_six()}\n"
-      f"Sociable: {sociable_ciderwerks()}\n"
-      f"Headflyer: {headflyer()}\n"
-      f"Lake Monster: {lake_monster()}\n"
-      f"Inbound: {inbound()}\n"
-      f"Blackstack: {blackstack()}")
+print("Fetching food truck list...\n\n")
+print(
+    f"Food trucks around town today:\n"
+    "-------------------------------\n"
+    f"56: {fifty_six()}\n"
+    f"Bauhaus: {bauhaus()}\n"
+    f"Blackstack: {blackstack()}\n"
+    f"Headflyer: {headflyer()}\n"
+    f"Inbound: {inbound()}\n"
+    f"Lake Monster: {lake_monster()}\n"
+    f"Sociable: {sociable_ciderwerks()}\n"
+    f"Steel Toe: {steeltoe()}"
+    )
