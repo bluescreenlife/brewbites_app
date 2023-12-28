@@ -66,7 +66,7 @@ def lake_monster(): # neighboring vendor, rarely changes
     response = requests.get("https://www.lakemonsterbrewing.com/#intro")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
-    truck = soup.find_all("p", attrs={'style':'white-space:pre-wrap;'})[2].get_text()
+    truck = soup.find_all("p", attrs={'style':'white-space:pre-wrap;'})[2].get_text().strip()
     return truck
 
 def headflyer():
@@ -74,12 +74,15 @@ def headflyer():
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     dates = soup.find_all("div", class_="hidden md:block text-4xl fjalla")
-    top_date = dates[0].get_text()
-    if top_date == today_num:
-        truck = soup.find_all("div", class_="font-fjalla pb-2")[0].get_text()
-        return truck
-    else:
-        return "No truck listed for today."
+    try:
+        top_date = dates[0].get_text()
+        if top_date == today_num:
+            truck = soup.find_all("div", class_="font-fjalla pb-2")[0].get_text()
+            return truck
+        else:
+            return "No truck listed for today."
+    except IndexError:
+        return "No food truck listed for today."
     
 def blackstack():
     response = requests.get("https://www.blackstackbrewing.com/events")
@@ -171,7 +174,26 @@ def steeltoe():
         return truck
     except NoSuchElementException:
         return "No food truck listed for today."
+
+def alloy():
+    month_year = current_date_time.strftime("%m-%Y")
+    driver = webdriver_init()
+    driver.get(f"https://www.alloybrewingcompany.com/taproom?view=calendar&month={month_year}")
     
+    if today_num[0] == "0":
+        today_num_no_zero = today_num[1]
+        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
+    else:
+        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
+
+    grandparent_element = element.find_element(By.XPATH, "../..")
+
+    try:
+        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text
+        driver.close()
+        return truck
+    except NoSuchElementException:
+        return "No food truck listed for today."
 
 # selenium webdriver functions: IN PROGRESS
 
@@ -208,16 +230,21 @@ def insight(): # skipping for now, complicated
     expand_button = driver.find_element(By.XPATH, '//*[@id="2023-12-08"]/div/div/div/div/div/div/div/button')
     expand_button.click()
 
-print("Fetching food truck list...\n\n")
-print(
-    f"Food trucks around town today:\n"
-    "-------------------------------\n"
-    f"56: {fifty_six()}\n"
-    f"Bauhaus: {bauhaus()}\n"
-    f"Blackstack: {blackstack()}\n"
-    f"Headflyer: {headflyer()}\n"
-    f"Inbound: {inbound()}\n"
-    f"Lake Monster: {lake_monster()}\n"
-    f"Sociable: {sociable_ciderwerks()}\n"
-    f"Steel Toe: {steeltoe()}"
-    )
+# -------------------- CORE -------------------- #
+def truck_dict():
+    truck_dict = {
+        f"56": fifty_six(),
+        f"alloy": alloy(),
+        f"bauhaus": bauhaus(),
+        f"blackstack": blackstack(),
+        f"headflyer": headflyer(),
+        f"inbound": inbound(),
+        f"lake monster": lake_monster(),
+        f"sociable ciderwerks": sociable_ciderwerks(),
+        f"steel toe": steeltoe()
+    }
+    print(f"Scrape successful:\n{truck_dict}")
+    return truck_dict
+
+if __name__ == "__main__":
+    truck_dict()
