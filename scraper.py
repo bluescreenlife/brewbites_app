@@ -9,7 +9,8 @@ from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 import time
-import re
+import requests
+import json
 
 # webdriver setup
 def webdriver_init():
@@ -29,9 +30,9 @@ if today_num[0] == "0":
 date_str = current_date_time.strftime("%Y-%m-%d")
 date_str_no_zeros = current_date_time.strftime("%Y-%m-") + today_num
 
-# ---------- per-brewery scrape functions ---------- #
+# -------------------- per-brewery scrape functions -------------------- #
 
-# beautifulsoup functions: WORKING
+# beautifulsoup: WORKING
 
 def bauhaus():
     response = requests.get("https://www.bauhausbrewlabs.com/food")
@@ -99,7 +100,7 @@ def blackstack():
     return(truck)
 
 
-# beautifulsoup functions: IN PROGRESS
+# beautifulsoup: IN PROGRESS
 
 def bent(): # no current trucks listed, check later
     response = requests.get("https://www.bentbrewstillery.com/")
@@ -138,7 +139,7 @@ def bad_weather(): # may need to switch to webdriver...
     # return today_element
 
 
-# selenium webdriver functions: WORKING
+# selenium webdriver: WORKING
 
 def inbound():
     driver = webdriver_init()
@@ -195,7 +196,7 @@ def alloy():
     except NoSuchElementException:
         return "No food truck listed for today."
 
-# selenium webdriver functions: IN PROGRESS
+# selenium webdriver: IN PROGRESS
 
 def forgotten_star():
     driver = webdriver_init()
@@ -230,9 +231,10 @@ def insight(): # skipping for now, complicated
     expand_button = driver.find_element(By.XPATH, '//*[@id="2023-12-08"]/div/div/div/div/div/div/div/button')
     expand_button.click()
 
-# -------------------- CORE -------------------- #
-def truck_dict():
-    truck_dict = {
+# ------------------------------- CORE ------------------------------- #
+
+def scrape():
+    data = {
         f"56": fifty_six(),
         f"alloy": alloy(),
         f"bauhaus": bauhaus(),
@@ -243,8 +245,38 @@ def truck_dict():
         f"sociable ciderwerks": sociable_ciderwerks(),
         f"steel toe": steeltoe()
     }
-    print(f"Scrape successful:\n{truck_dict}")
-    return truck_dict
+
+    json_data = json.dumps(data)
+    return json_data
+
+def publish(data):
+    response = requests.post("https://api.npoint.io/7ba92b78266e329bc829", data=data)
+    return response
+
+def timestamp():
+    return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 if __name__ == "__main__":
-    truck_dict()
+    while True:
+        hour = datetime.datetime.now().hour
+        if hour == 17:
+            print(f"{timestamp()} | Attempting scrape...")
+            truck_data = scrape()
+            if truck_data:
+                print(f"{timestamp()} | Scrape successful.")
+                print(f"\nScraped data: {truck_data}\n")
+                print(f"{timestamp()} | Attempting publish...")
+                response = publish(truck_data)
+                if response.status_code == 200:
+                    print(f"{timestamp()} | Publish successful.")
+                else:
+                    print(f"{timestamp()} | Publish failed.")
+                    print(f"Error: {response.status_code}")
+                    print(f"Response: {response.text}\n")
+            else:
+                print(f"{timestamp()} | Scrape unsuccessful.\n")
+            print("Script will run again in 24 hours.\n")
+            time.sleep(86400)
+        else:
+            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+            time.sleep(3600)
