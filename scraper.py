@@ -61,8 +61,7 @@ def elm_creek():
         event = container.find("a", class_="eventlist-title-link").get_text()
         event_strings.append(event)
     
-    print(event_strings)
-
+    return event_strings[0]
 
 def fifty_six():
     response = requests.get("https://56brewing.com/events/")
@@ -261,6 +260,7 @@ def scrape():
         f"alloy": alloy(),
         f"bauhaus": bauhaus(),
         f"blackstack": blackstack(),
+        f"elm creek brewing": elm_creek(),
         f"headflyer": headflyer(),
         f"inbound": inbound(),
         f"lake monster": lake_monster(),
@@ -279,27 +279,26 @@ def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 if __name__ == "__main__":
-    # while True:
-    #     hour = datetime.datetime.now().hour
-    #     if hour == 9:
-    #         print(f"{timestamp()} | Attempting scrape...")
-    #         truck_data = scrape()
-    #         if truck_data:
-    #             print(f"{timestamp()} | Scrape successful.")
-    #             print(f"\nScraped data: {truck_data}\n")
-    #             print(f"{timestamp()} | Attempting publish...")
-    #             response = publish(truck_data)
-    #             if response.status_code == 200:
-    #                 print(f"{timestamp()} | Publish successful.")
-    #             else:
-    #                 print(f"{timestamp()} | Publish failed.")
-    #                 print(f"Error: {response.status_code}")
-    #                 print(f"Response: {response.text}\n")
-    #         else:
-    #             print(f"{timestamp()} | Scrape unsuccessful.\n")
-    #         print("Script will run again in 24 hours.\n")
-    #         time.sleep(86400)
-    #     else:
-    #         print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-    #         time.sleep(3600)
-    elm_creek()
+    while True:
+        hour = datetime.datetime.now().hour
+        if hour == 9:
+            print(f"{timestamp()} | Attempting scrape...")
+            truck_data = scrape()
+            if truck_data:
+                print(f"{timestamp()} | Scrape successful.")
+                print(f"\nScraped data: {truck_data}\n")
+                print(f"{timestamp()} | Attempting publish...")
+                response = publish(truck_data)
+                if response.status_code == 200:
+                    print(f"{timestamp()} | Publish successful.")
+                else:
+                    print(f"{timestamp()} | Publish failed.")
+                    print(f"Error: {response.status_code}")
+                    print(f"Response: {response.text}\n")
+            else:
+                print(f"{timestamp()} | Scrape unsuccessful.\n")
+            print("Script will run again in 24 hours.\n")
+            time.sleep(86400)
+        else:
+            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+            time.sleep(3600)
