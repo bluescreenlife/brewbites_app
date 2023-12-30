@@ -42,6 +42,28 @@ def bauhaus():
     truck = schedule.select(f'p:-soup-contains("{today.upper()}")')[0].get_text().split("-")[1].strip()
     return truck.title()
 
+def elm_creek():
+    response = requests.get("https://www.elmcreekbrewing.com/events")
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+    today_num = current_date_time.strftime("%d")
+    event_strings = []
+
+    event_list = soup.find("div", class_="eventlist eventlist--upcoming")
+    date_elements = event_list.find_all("div", class_="eventlist-datetag-startdate eventlist-datetag-startdate--day")
+
+    if today_num[0] == "0":
+        today_num = today_num[1]
+    today_elements = [element for element in date_elements if element.get_text() == today_num]
+
+    for element in today_elements:
+        container = element.parent.parent.parent.parent
+        event = container.find("a", class_="eventlist-title-link").get_text()
+        event_strings.append(event)
+    
+    print(event_strings)
+
+
 def fifty_six():
     response = requests.get("https://56brewing.com/events/")
     html = response.text
@@ -257,26 +279,27 @@ def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 if __name__ == "__main__":
-    while True:
-        hour = datetime.datetime.now().hour
-        if hour == 17:
-            print(f"{timestamp()} | Attempting scrape...")
-            truck_data = scrape()
-            if truck_data:
-                print(f"{timestamp()} | Scrape successful.")
-                print(f"\nScraped data: {truck_data}\n")
-                print(f"{timestamp()} | Attempting publish...")
-                response = publish(truck_data)
-                if response.status_code == 200:
-                    print(f"{timestamp()} | Publish successful.")
-                else:
-                    print(f"{timestamp()} | Publish failed.")
-                    print(f"Error: {response.status_code}")
-                    print(f"Response: {response.text}\n")
-            else:
-                print(f"{timestamp()} | Scrape unsuccessful.\n")
-            print("Script will run again in 24 hours.\n")
-            time.sleep(86400)
-        else:
-            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-            time.sleep(3600)
+    # while True:
+    #     hour = datetime.datetime.now().hour
+    #     if hour == 9:
+    #         print(f"{timestamp()} | Attempting scrape...")
+    #         truck_data = scrape()
+    #         if truck_data:
+    #             print(f"{timestamp()} | Scrape successful.")
+    #             print(f"\nScraped data: {truck_data}\n")
+    #             print(f"{timestamp()} | Attempting publish...")
+    #             response = publish(truck_data)
+    #             if response.status_code == 200:
+    #                 print(f"{timestamp()} | Publish successful.")
+    #             else:
+    #                 print(f"{timestamp()} | Publish failed.")
+    #                 print(f"Error: {response.status_code}")
+    #                 print(f"Response: {response.text}\n")
+    #         else:
+    #             print(f"{timestamp()} | Scrape unsuccessful.\n")
+    #         print("Script will run again in 24 hours.\n")
+    #         time.sleep(86400)
+    #     else:
+    #         print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+    #         time.sleep(3600)
+    elm_creek()
