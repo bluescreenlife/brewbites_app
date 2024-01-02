@@ -8,17 +8,19 @@ from selenium.webdriver.chrome.service import Service
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from webdriver_manager.chrome import ChromeDriverManager
 import time
 import requests
 import json
 
 # webdriver setup
 def webdriver_init():
-    chromedriver = Service("/Users/andrew/Developer/chromedriver")
+    # chromedriver = Service("/Users/andrew/Developer/chromedriver")
+    service = Service(ChromeDriverManager().install() )
     chrome_options = webdriver.ChromeOptions()
-    chrome_options.add_argument("--headless")
+    # chrome_options.add_argument("--headless")
     chrome_options.add_experimental_option("detach", True)
-    driver = webdriver.Chrome(service=chromedriver, options=chrome_options)
+    driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
 
 # date/time variables
@@ -61,7 +63,10 @@ def elm_creek():
         event = container.find("a", class_="eventlist-title-link").get_text()
         event_strings.append(event)
     
-    return event_strings[0]
+    if event_strings:
+        return event_strings[0]
+    else:
+        return "No truck listed for today."
 
 def fifty_six():
     response = requests.get("https://56brewing.com/events/")
@@ -222,28 +227,22 @@ def alloy():
 def forgotten_star():
     driver = webdriver_init()
     driver.get("https://www.forgottenstarbrewing.com/food-drink")
-    time.sleep(5)
     driver.execute_script("window.scrollTo(0, 2500)")
-    time.sleep(30)
-    popup_close = driver.find_element(By.ID, "comp-lpjzhokw")
-    time.sleep(10)
-    popup_close.click()
-    time.sleep(10)
+    time.sleep(5)
 
-    # trucks = WebDriverWait(driver, 30).until(
-    #     EC.presence_of_element_located((By.XPATH, "//h3[@class='agenda-item-title mt-0 mb-1 ellipsized bc-agenda-desc-color']"))
-    # )
-    with open("./html.txt", "w") as file:
-        html = driver.page_source
-        file.write(html)
+    wait = WebDriverWait(driver, 10)
+    iframe = wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[@class="nKphmK"]')))
+    driver.switch_to.frame(iframe)
 
-    # soup = BeautifulSoup(html, "html.parser")
-    # trucks = soup.find_all("h3", class_="agenda-item-title mt-0 mb-1 ellipsized bc-agenda-desc-color")
+    # page_source = driver.page_source
+    # with open("./forgotten_star_html.txt", "w") as file:
+    #     file.write(page_source)
 
-    # agenda = driver.find_element(By.CLASS_NAME, "agenda modern")
-    # events = agenda.find_elements(By.CLASS_NAME, "agenda-item")
-    # today = events[0]
-    # truck = today.find_element(By.CLASS_NAME, "agenda-item-title mt-0 mb-1 ellipsized bc-agenda-desc-color").text
+    # event = driver.find_element(By.XPATH, "//*[@id='bc_root-zxd08nque6']/div[1]/div/div[2]/div/div/div[1]/div[3]/h3")
+    event = driver.find_element(By.CLASS_NAME, "agenda-item-title mt-0 mb-1 ellipsized bc-agenda-desc-color")
+    print(event)
+
+    driver.close()
 
 def insight(): # skipping for now, complicated
     driver = webdriver_init()
@@ -279,26 +278,28 @@ def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 if __name__ == "__main__":
-    while True:
-        hour = datetime.datetime.now().hour
-        if hour == 9:
-            print(f"{timestamp()} | Attempting scrape...")
-            truck_data = scrape()
-            if truck_data:
-                print(f"{timestamp()} | Scrape successful.")
-                print(f"\nScraped data: {truck_data}\n")
-                print(f"{timestamp()} | Attempting publish...")
-                response = publish(truck_data)
-                if response.status_code == 200:
-                    print(f"{timestamp()} | Publish successful.")
-                else:
-                    print(f"{timestamp()} | Publish failed.")
-                    print(f"Error: {response.status_code}")
-                    print(f"Response: {response.text}\n")
-            else:
-                print(f"{timestamp()} | Scrape unsuccessful.\n")
-            print("Script will run again in 24 hours.\n")
-            time.sleep(86400)
-        else:
-            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-            time.sleep(3600)
+    # while True:
+    #     hour = datetime.datetime.now().hour
+    #     if hour == 20:
+    #         print(f"{timestamp()} | Attempting scrape...")
+    #         truck_data = scrape()
+    #         if truck_data:
+    #             print(f"{timestamp()} | Scrape successful.")
+    #             print(f"\nScraped data: {truck_data}\n")
+    #             print(f"{timestamp()} | Attempting publish...")
+    #             response = publish(truck_data)
+    #             if response.status_code == 200:
+    #                 print(f"{timestamp()} | Publish successful.")
+    #             else:
+    #                 print(f"{timestamp()} | Publish failed.")
+    #                 print(f"Error: {response.status_code}")
+    #                 print(f"Response: {response.text}\n")
+    #         else:
+    #             print(f"{timestamp()} | Scrape unsuccessful.\n")
+    #         print("Script will run again in 24 hours.\n")
+    #         time.sleep(86400)
+    #     else:
+    #         print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+    #         time.sleep(3600)
+
+    forgotten_star()
