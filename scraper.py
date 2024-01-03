@@ -15,10 +15,10 @@ import json
 
 # webdriver setup
 def webdriver_init():
-    # chromedriver = Service("/Users/andrew/Developer/chromedriver")
-    service = Service(ChromeDriverManager().install() )
+    # service = Service("/Users/andrew/Developer/chromedriver")
+    service = Service(ChromeDriverManager().install())
     chrome_options = webdriver.ChromeOptions()
-    # chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--headless")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
@@ -170,8 +170,8 @@ def bad_weather(): # may need to switch to webdriver...
 def inbound():
     driver = webdriver_init()
     driver.get("https://inboundbrew.co/inbound-brewco-food-trucks")
-    today_element = driver.find_element(By.CLASS_NAME, "today")
     try:
+        today_element = driver.find_element(By.CLASS_NAME, "today") 
         truck_element = today_element.find_element(By.TAG_NAME, "img")
         truck = truck_element.get_attribute("alt")
         return truck
@@ -183,23 +183,22 @@ def inbound():
 def steeltoe():
     driver = webdriver_init()
     driver.get("https://www.steeltoebrewing.com/")
-
-    truck = ""
-    pop_up = ""
-
-    if today_num[0] == "0":
-        today_num_no_zero = today_num[1]
-        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
-    else:
-        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
-
-    grandparent_element = element.find_element(By.XPATH, "../..")
+    
+    time.sleep(2)
 
     try:
-        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text
+        if today_num[0] == "0":
+            today_num_no_zero = today_num[1]
+            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
+        else:
+            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
+
+        grandparent_element = element.find_element(By.XPATH, "../..")
+        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text.split("-")[0].strip()
         driver.close()
         return truck
     except NoSuchElementException:
+        driver.close()
         return "No food truck listed for today."
 
 def alloy():
@@ -207,42 +206,44 @@ def alloy():
     driver = webdriver_init()
     driver.get(f"https://www.alloybrewingcompany.com/taproom?view=calendar&month={month_year}")
     
-    if today_num[0] == "0":
-        today_num_no_zero = today_num[1]
-        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
-    else:
-        element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
-
-    grandparent_element = element.find_element(By.XPATH, "../..")
+    time.sleep(2)
 
     try:
+        if today_num[0] == "0":
+            today_num_no_zero = today_num[1]
+            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
+        else:
+            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
+        
+        grandparent_element = element.find_element(By.XPATH, "../..")
         truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text
         driver.close()
         return truck
     except NoSuchElementException:
+        driver.close()
         return "No food truck listed for today."
-
-# selenium webdriver: IN PROGRESS
 
 def forgotten_star():
     driver = webdriver_init()
     driver.get("https://www.forgottenstarbrewing.com/food-drink")
     driver.execute_script("window.scrollTo(0, 2500)")
+
     time.sleep(5)
 
-    wait = WebDriverWait(driver, 10)
-    iframe = wait.until(EC.presence_of_element_located((By.XPATH, '//iframe[@class="nKphmK"]')))
+    iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//iframe[@class="nKphmK" and @title="Calendar" and @aria-label="Calendar"]')))
     driver.switch_to.frame(iframe)
 
-    # page_source = driver.page_source
-    # with open("./forgotten_star_html.txt", "w") as file:
-    #     file.write(page_source)
+    today_num = current_date_time.strftime("%d")
+    top_date = driver.find_element(By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/p").text
+    if today_num == top_date:
+        truck = driver.find_element(By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[3]/h3").text
+        driver.close()
+        return truck
+    else:
+        driver.close()
+        return "No food truck listed for today."
 
-    # event = driver.find_element(By.XPATH, "//*[@id='bc_root-zxd08nque6']/div[1]/div/div[2]/div/div/div[1]/div[3]/h3")
-    event = driver.find_element(By.CLASS_NAME, "agenda-item-title mt-0 mb-1 ellipsized bc-agenda-desc-color")
-    print(event)
-
-    driver.close()
+# selenium webdriver: IN PROGRESS
 
 def insight(): # skipping for now, complicated
     driver = webdriver_init()
@@ -260,6 +261,7 @@ def scrape():
         f"bauhaus": bauhaus(),
         f"blackstack": blackstack(),
         f"elm creek brewing": elm_creek(),
+        f"forgotten star": forgotten_star(),
         f"headflyer": headflyer(),
         f"inbound": inbound(),
         f"lake monster": lake_monster(),
@@ -278,28 +280,26 @@ def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 if __name__ == "__main__":
-    # while True:
-    #     hour = datetime.datetime.now().hour
-    #     if hour == 20:
-    #         print(f"{timestamp()} | Attempting scrape...")
-    #         truck_data = scrape()
-    #         if truck_data:
-    #             print(f"{timestamp()} | Scrape successful.")
-    #             print(f"\nScraped data: {truck_data}\n")
-    #             print(f"{timestamp()} | Attempting publish...")
-    #             response = publish(truck_data)
-    #             if response.status_code == 200:
-    #                 print(f"{timestamp()} | Publish successful.")
-    #             else:
-    #                 print(f"{timestamp()} | Publish failed.")
-    #                 print(f"Error: {response.status_code}")
-    #                 print(f"Response: {response.text}\n")
-    #         else:
-    #             print(f"{timestamp()} | Scrape unsuccessful.\n")
-    #         print("Script will run again in 24 hours.\n")
-    #         time.sleep(86400)
-    #     else:
-    #         print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-    #         time.sleep(3600)
-
-    forgotten_star()
+    while True:
+        hour = datetime.datetime.now().hour
+        if hour == 9:
+            print(f"{timestamp()} | Attempting scrape...")
+            truck_data = scrape()
+            if truck_data:
+                print(f"{timestamp()} | Scrape successful.")
+                print(f"\nScraped data: {truck_data}\n")
+                print(f"{timestamp()} | Attempting publish...")
+                response = publish(truck_data)
+                if response.status_code == 200:
+                    print(f"{timestamp()} | Publish successful.")
+                else:
+                    print(f"{timestamp()} | Publish failed.")
+                    print(f"Error: {response.status_code}")
+                    print(f"Response: {response.text}\n")
+            else:
+                print(f"{timestamp()} | Scrape unsuccessful.\n")
+            print("Script will run again in 24 hours.\n")
+            time.sleep(86400)
+        else:
+            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+            time.sleep(3600)
