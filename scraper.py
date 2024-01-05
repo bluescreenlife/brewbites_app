@@ -32,6 +32,9 @@ if today_num[0] == "0":
 date_str = current_date_time.strftime("%Y-%m-%d")
 date_str_no_zeros = current_date_time.strftime("%Y-%m-") + today_num
 
+# json bin
+npoint_bin = "https://api.npoint.io/7ba92b78266e329bc829"
+
 # -------------------- per-brewery scrape functions -------------------- #
 
 # beautifulsoup: WORKING
@@ -255,6 +258,8 @@ def insight(): # skipping for now, complicated
 # ------------------------------- CORE ------------------------------- #
 
 def scrape():
+    print(f"{timestamp()} | Attempting scrape...")
+
     data = {
         f"56": fifty_six(),
         f"alloy": alloy(),
@@ -270,11 +275,21 @@ def scrape():
     }
 
     json_data = json.dumps(data)
+    print(f"{timestamp()} | Scrape successful.")
     return json_data
 
 def publish(data):
-    response = requests.post("https://api.npoint.io/7ba92b78266e329bc829", data=data)
-    return response
+    print(f"{timestamp()} | Attempting publish...")
+    
+    # response = requests.post("https://api.npoint.io/7ba92b78266e329bc829", data=data)
+    response = requests.post(npoint_bin, data=data)
+
+    if response.status_code == 200:
+        print(f"{timestamp()} | Publish successful.")
+    else:
+        print(f"{timestamp()} | Publish failed.")
+        print(f"Error: {response.status_code}")
+        print(f"Response: {response.text}\n")
 
 def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
@@ -282,22 +297,10 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 9:
-            print(f"{timestamp()} | Attempting scrape...")
+        if hour == 14:
             truck_data = scrape()
             if truck_data:
-                print(f"{timestamp()} | Scrape successful.")
-                print(f"\nScraped data: {truck_data}\n")
-                print(f"{timestamp()} | Attempting publish...")
-                response = publish(truck_data)
-                if response.status_code == 200:
-                    print(f"{timestamp()} | Publish successful.")
-                else:
-                    print(f"{timestamp()} | Publish failed.")
-                    print(f"Error: {response.status_code}")
-                    print(f"Response: {response.text}\n")
-            else:
-                print(f"{timestamp()} | Scrape unsuccessful.\n")
+                publish(truck_data)
             print("Script will run again in 24 hours.\n")
             time.sleep(86400)
         else:
