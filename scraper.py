@@ -174,7 +174,7 @@ def inbound():
     driver = webdriver_init()
     driver.get("https://inboundbrew.co/inbound-brewco-food-trucks")
     try:
-        today_element = driver.find_element(By.CLASS_NAME, "today") 
+        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
         truck_element = today_element.find_element(By.TAG_NAME, "img")
         truck = truck_element.get_attribute("alt")
         return truck
@@ -190,14 +190,9 @@ def steeltoe():
     time.sleep(2)
 
     try:
-        if today_num[0] == "0":
-            today_num_no_zero = today_num[1]
-            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
-        else:
-            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
-
-        grandparent_element = element.find_element(By.XPATH, "../..")
-        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text.split("-")[0].strip()
+        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
+        truck_element = today_element.find_element(By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
+        truck = truck_element.get_attribute("textContent").split("-")[0].strip()
         driver.close()
         return truck
     except NoSuchElementException:
@@ -212,14 +207,9 @@ def alloy():
     time.sleep(2)
 
     try:
-        if today_num[0] == "0":
-            today_num_no_zero = today_num[1]
-            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num_no_zero}')]")
-        else:
-            element = driver.find_element(By.XPATH, f"//div[@class='marker-daynum' and contains(text(), '{today_num}')]")
-        
-        grandparent_element = element.find_element(By.XPATH, "../..")
-        truck = grandparent_element.find_element(By.XPATH, "//span[@class='item-title' and contains(text(), 'Food Truck')]").text
+        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
+        truck_element = today_element.find_element(By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
+        truck = truck_element.get_attribute("textContent").split(":")[1].strip()
         driver.close()
         return truck
     except NoSuchElementException:
@@ -281,7 +271,6 @@ def scrape():
 def publish(data):
     print(f"{timestamp()} | Attempting publish...")
     
-    # response = requests.post("https://api.npoint.io/7ba92b78266e329bc829", data=data)
     response = requests.post(npoint_bin, data=data)
 
     if response.status_code == 200:
@@ -297,8 +286,9 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 14:
+        if hour == 9:
             truck_data = scrape()
+            print(f"\nScraped data:\n{truck_data}\n")
             if truck_data:
                 publish(truck_data)
             print("Script will run again in 24 hours.\n")
