@@ -14,6 +14,7 @@ import requests
 import json
 
 # webdriver setup
+
 def webdriver_init():
     # service = Service("/Users/andrew/Developer/chromedriver")
     service = Service(ChromeDriverManager().install())
@@ -23,83 +24,124 @@ def webdriver_init():
     driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
 
-# date/time variables
-current_date_time = datetime.datetime.now()
-today = current_date_time.strftime("%A")
-today_num = current_date_time.strftime("%d")
-if today_num[0] == "0":
-    today_num_no_zero = today_num[1]
-date_str = current_date_time.strftime("%Y-%m-%d")
-date_str_no_zeros = current_date_time.strftime("%Y-%m-") + today_num
+# date-time varialbes for classes
 
-# json bin
-npoint_bin = "https://api.npoint.io/7ba92b78266e329bc829"
+class DateData:
+    def __init__(self):
+        self.now = datetime.datetime.now()
+        self.weekday_str = self.now.strftime("%A")
+        self.today_num = self.now.strftime("%d")
+        self.today_num_no_zero = None
+        if self.today_num[0] == "0":
+            self.today_num_no_zero = self.today_num[1]
+        self.date_str = self.now.strftime("%Y-%m-%d")
+        self.date_str_no_zeros = self.now.strftime("%Y-%m-") + self.today_num
+        self.month_year = self.now.strftime("%m-%Y")
+        self.month_day = self.now.strftime("%B %-d")
+        self.year_month_day = self.now.strftime("%Y-%m-%d")
 
 # -------------------- per-brewery scrape functions -------------------- #
 
-# beautifulsoup: WORKING
+# beautifulsoup: in use
 
 def bauhaus():
+    calendar = DateData()
+    weekday_str = calendar.weekday_str
+
     response = requests.get("https://www.bauhausbrewlabs.com/food")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     schedule = soup.find("div", class_="sqs-html-content")
-    truck = schedule.select(f'p:-soup-contains("{today.upper()}")')[0].get_text().split("-")[1].strip()
+    truck = schedule.select(
+        f'p:-soup-contains("{weekday_str.upper()}")')[0].get_text().split("-")[1].strip()
     return truck.title()
 
+
 def elm_creek():
+    calendar = DateData()
+    today_num = calendar.today_num
+
     response = requests.get("https://www.elmcreekbrewing.com/events")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
-    today_num = current_date_time.strftime("%d")
     event_strings = []
 
     event_list = soup.find("div", class_="eventlist eventlist--upcoming")
-    date_elements = event_list.find_all("div", class_="eventlist-datetag-startdate eventlist-datetag-startdate--day")
+    date_elements = event_list.find_all(
+        "div", class_="eventlist-datetag-startdate eventlist-datetag-startdate--day")
 
     if today_num[0] == "0":
         today_num = today_num[1]
-    today_elements = [element for element in date_elements if element.get_text() == today_num]
+    today_elements = [
+        element for element in date_elements if element.get_text() == today_num]
 
     for element in today_elements:
         container = element.parent.parent.parent.parent
         event = container.find("a", class_="eventlist-title-link").get_text()
         event_strings.append(event)
-    
+
+    if event_strings:
+        non_trucks = ["Kegs & Eggs", "Board Games + Adult Coloring Night", "Trivia Mafia",
+                      "Trivia Mafia ", "Meat Raffle", "Essential Oils Roller Making", "SEEK Sunday"]
+        event_strings = [
+            string for string in event_strings if string not in non_trucks]
+        for string in event_strings:
+            if "Live Music" in string:
+                event_strings.remove(string)
+
     if event_strings:
         return event_strings[0]
     else:
-        return "No truck listed for today."
+        return "No food truck listed for today."
+
 
 def fifty_six():
+    calendar = DateData()
+    today_num = calendar.today_num
+    if calendar.today_num_no_zero:
+        today_num = calendar.today_num_no_zero
+
     response = requests.get("https://56brewing.com/events/")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
-    schedule = soup.find("div", id=f"tribe-events-calendar-mobile-day-{date_str_no_zeros}")
-    if schedule:
-        truck = schedule.select_one('a:-soup-contains("Food")')
-        if truck:
-            return truck.get_text().split(":")[1].strip()
-        else:
-            return "No truck listed for today."
-    else:
-        return "No truck listed for today."
 
-def sociable_ciderwerks(): # resident truck, rarely changes
+    calendar_elements = soup.find_all(
+        "div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")
+    top_element = calendar_elements[0]
+    date = top_element.find(
+        "span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
+
+    if date == today_num:
+        description = top_element.find(
+            "a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
+        if "Food" in description:
+            truck = description.split(":")[1].strip()
+            return (truck)
+        else:
+            return "No food truck listed for today."
+
+
+def sociable_ciderwerks():  # resident truck, rarely changes
     response = requests.get("https://sociablecider.com/sociablefoodtruck")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find("a", href="/sociablefoodtruck").get_text().strip()
     return element
 
-def lake_monster(): # neighboring vendor, rarely changes
+
+def lake_monster():  # neighboring vendor, rarely changes
     response = requests.get("https://www.lakemonsterbrewing.com/#intro")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
-    truck = soup.find_all("p", attrs={'style':'white-space:pre-wrap;'})[2].get_text().strip()
+    truck = soup.find_all(
+        "p", attrs={'style': 'white-space:pre-wrap;'})[2].get_text().strip()
     return truck
 
+
 def headflyer():
+    calendar = DateData()
+    today_num = calendar.today_num
+
     response = requests.get("https://www.headflyerbrewing.com/food/")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
@@ -107,143 +149,218 @@ def headflyer():
     try:
         top_date = dates[0].get_text()
         if top_date == today_num:
-            truck = soup.find_all("div", class_="font-fjalla pb-2")[0].get_text()
+            truck = soup.find_all(
+                "div", class_="font-fjalla pb-2")[0].get_text()
             return truck
         else:
-            return "No truck listed for today."
+            return "No food truck listed for today."
     except IndexError:
         return "No food truck listed for today."
-    
+
+
 def blackstack():
+    calendar = DateData()
+    today_num = calendar.today_num
+    today_num_no_zero = calendar.today_num_no_zero
+
     response = requests.get("https://www.blackstackbrewing.com/events")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
 
-    if today_num[0] == "0":
-        today_num_no_zero = today_num[1]
-        date_element = soup.find("div", attrs={'data-hook':f'calendar-day-{today_num_no_zero}'})
+    if today_num_no_zero:
+        date_element = soup.find(
+            "div", attrs={'data-hook': f'calendar-day-{today_num_no_zero}'})
     else:
-        date_element = soup.find("div", attrs={'data-hook':f'calendar-day-{today_num}'})
-    
-    truck = date_element.find("div", attrs={'data-hook':'cell-event-title'}).get_text()
-    return(truck)
+        date_element = soup.find(
+            "div", attrs={'data-hook': f'calendar-day-{today_num}'})
+
+    if date_element:
+        truck = date_element.find(
+            "div", attrs={'data-hook': 'cell-event-title'}).get_text()
+        return truck
+    else:
+        return "No food truck listed for today."
 
 
-# beautifulsoup: IN PROGRESS
+# beautifulsoup: not in use
 
-def bent(): # no current trucks listed, check later
+def bent():  # no current trucks listed, check later
     response = requests.get("https://www.bentbrewstillery.com/")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find("span", class_="wixui-rich-text__text")
     print(element)
 
-def broken_clock(): # no current trucks listed, check back later
+
+def broken_clock():  # no current trucks listed, check back later
     response = requests.get("https://www.brokenclockbrew.com/events/")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find()
     print(element)
 
-def fair_state(): # no current trucks listed, check back later
+
+def fair_state():  # no current trucks listed, check back later
     response = requests.get("")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find()
     print(element)
 
-def bad_weather(): # may need to switch to webdriver...
-    response = requests.get(f"https://www.badweatherbrewery.com/events?view=calendar&month={current_date_time.strftime('%m-%Y')}")
-    html = response.text
-    soup = BeautifulSoup(html, "html.parser")
-    calendar = soup.find("div", class_="yui3-u-1")
-    # today_element = calendar.find("div", class_="marker-daynum", string=today_num)
-    # day_events = element.next_element
-    return calendar
 
-    # driver = webdriver_init()
-    # driver.get(f"https://www.badweatherbrewery.com/events?view=calendar&month={current_date_time.strftime('%m-%Y')}")
-    # today_element = driver.find_element(By.XPATH, f'//div[@class="marker-daynum" and text()={today_num}]')
-    # # day_events = element.next_element
-    # return today_element
+# selenium webdriver:
 
+def bad_weather():
+    calendar = DateData()
+    month_year = calendar.month_year
 
-# selenium webdriver: WORKING
+    driver = webdriver_init()
+    driver.get(
+        f"https://badweatherbrewery.com/events?view=calendar&month={month_year}")
+
+    try:
+        today_element = driver.find_element(
+            By.XPATH, "//td[contains(@class, 'today')]")
+        truck_element = today_element.find_element(
+            By.XPATH, ".//span[contains(@class, 'item-title') and contains(text(), '(Food Truck)')]")
+        truck = truck_element.text.split(")")[1].strip()
+        driver.close()
+        return truck
+    except NoSuchElementException:
+        driver.close()
+        return "No food truck listed for today."
+
 
 def inbound():
     driver = webdriver_init()
     driver.get("https://inboundbrew.co/inbound-brewco-food-trucks")
     try:
-        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
+        today_element = driver.find_element(
+            By.XPATH, "//td[contains(@class, 'today')]")
         truck_element = today_element.find_element(By.TAG_NAME, "img")
         truck = truck_element.get_attribute("alt")
         return truck
     except NoSuchElementException:
-        return "No truck listed for today."
+        return "No food truck listed for today."
     finally:
         driver.close()
+
 
 def steeltoe():
     driver = webdriver_init()
     driver.get("https://www.steeltoebrewing.com/")
-    
+
     time.sleep(2)
 
     try:
-        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
-        truck_element = today_element.find_element(By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
-        truck = truck_element.get_attribute("textContent").split("-")[0].strip()
+        today_element = driver.find_element(
+            By.XPATH, "//td[contains(@class, 'today')]")
+        truck_element = today_element.find_element(
+            By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
+        truck = truck_element.get_attribute(
+            "textContent").split("-")[0].strip()
         driver.close()
         return truck
     except NoSuchElementException:
         driver.close()
         return "No food truck listed for today."
+
 
 def alloy():
-    month_year = current_date_time.strftime("%m-%Y")
+    calendar = DateData()
+    month_year = calendar.month_year
+
     driver = webdriver_init()
-    driver.get(f"https://www.alloybrewingcompany.com/taproom?view=calendar&month={month_year}")
-    
+    driver.get(
+        f"https://www.alloybrewingcompany.com/taproom?view=calendar&month={month_year}")
+
     time.sleep(2)
 
     try:
-        today_element = driver.find_element(By.XPATH, "//td[contains(@class, 'today')]")
-        truck_element = today_element.find_element(By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
-        truck = truck_element.get_attribute("textContent").split(":")[1].strip()
+        today_element = driver.find_element(
+            By.XPATH, "//td[contains(@class, 'today')]")
+        truck_element = today_element.find_element(
+            By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
+        truck = truck_element.get_attribute(
+            "textContent").split(":")[1].strip()
         driver.close()
         return truck
     except NoSuchElementException:
         driver.close()
         return "No food truck listed for today."
 
+
 def forgotten_star():
+    calendar = DateData()
+    today_num = calendar.today_num
+
     driver = webdriver_init()
     driver.get("https://www.forgottenstarbrewing.com/food-drink")
     driver.execute_script("window.scrollTo(0, 2500)")
 
     time.sleep(5)
 
-    iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//iframe[@class="nKphmK" and @title="Calendar" and @aria-label="Calendar"]')))
+    iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
+        (By.XPATH, '//iframe[@class="nKphmK" and @title="Calendar" and @aria-label="Calendar"]')))
     driver.switch_to.frame(iframe)
 
-    today_num = current_date_time.strftime("%d")
-    top_date = driver.find_element(By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/p").text
+    top_date = driver.find_element(
+        By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[1]/div/div[1]/p").text
     if today_num == top_date:
-        truck = driver.find_element(By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[3]/h3").text
+        truck = driver.find_element(
+            By.XPATH, "/html/body/div/div[1]/div/div[2]/div/div/div[1]/div[3]/h3").text
         driver.close()
         return truck
     else:
         driver.close()
         return "No food truck listed for today."
 
-# selenium webdriver: IN PROGRESS
 
-def insight(): # skipping for now, complicated
+def insight():
+    calendar = DateData()
+    date = calendar.year_month_day
+
     driver = webdriver_init()
     driver.get("https://www.insightbrewing.com/food-trucks-events")
-    time.sleep(35)
-    expand_button = driver.find_element(By.XPATH, '//*[@id="2023-12-08"]/div/div/div/div/div/div/div/button')
-    expand_button.click()
+
+    time.sleep(5)
+
+    # switch to calendar iframe
+    calendar_iframe_rule = (
+        By.XPATH, "/html/body/div/div/div[3]/div/main/div/div/div/div[2]/div/div/div/section[1]/div[2]/div/div[4]/iframe")
+    calendar_iframe = WebDriverWait(driver, 10).until(
+        EC.presence_of_element_located(calendar_iframe_rule))
+    driver.switch_to.frame(calendar_iframe)
+
+    # find and click expand button for today's date
+    try:
+        date_element = driver.find_element(
+            By.XPATH, f"//td[contains(@id, '{date}')]")
+        button_element = date_element.find_element(By.TAG_NAME, "button")
+        button_element.click()
+    except NoSuchElementException:
+        return "No food truck listed for today."
+
+    # check events within subframe for food trucks, return truck if match
+    events_subframe = driver.find_elements(
+        By.XPATH, "//div[contains(@class, 'CalendarPopover')]")[2]
+    event_elements = events_subframe.find_elements(
+        By.XPATH, ".//div[contains(@class, 'EventTitle')]")
+    key_phrases = ["Food Truck", "FoodTruck", "food truck",
+                   "Philly Express", "Mirasol Mexican Grill", "Brick Oven Pizza Bus"]
+    truck = ""
+    for element in event_elements:
+        for phrase in key_phrases:
+            if phrase in element.text:
+                truck = element.text
+                break
+
+    driver.close()
+
+    if truck:
+        return truck
+    else:
+        return "No food truck listed for today."
 
 # ------------------------------- CORE ------------------------------- #
 
@@ -252,26 +369,35 @@ def scrape():
 
     data = {
         f"56": fifty_six(),
-        f"alloy": alloy(),
-        f"bauhaus": bauhaus(),
-        f"blackstack": blackstack(),
-        f"elm creek brewing": elm_creek(),
-        f"forgotten star": forgotten_star(),
-        f"headflyer": headflyer(),
-        f"inbound": inbound(),
-        f"lake monster": lake_monster(),
-        f"sociable ciderwerks": sociable_ciderwerks(),
-        f"steel toe": steeltoe()
+        f"Alloy": alloy(),
+        f"Bad Weather": bad_weather(),
+        f"Bauhaus": bauhaus(),
+        f"BlackStack": blackstack(),
+        f"Elm Creek": elm_creek(),
+        f"Forgotten Star": forgotten_star(),
+        f"Headflyer": headflyer(),
+        f"Inbound": inbound(),
+        f"Insight": insight(),
+        f"Lake Monster": lake_monster(),
+        f"Sociable Ciderwerks": sociable_ciderwerks(),
+        f"Steel Toe": steeltoe()
     }
 
     json_data = json.dumps(data)
     print(f"{timestamp()} | Scrape successful.")
     return json_data
 
+
 def publish(data):
     print(f"{timestamp()} | Attempting publish...")
-    
-    response = requests.post(npoint_bin, data=data)
+
+    json_bin = "https://api.jsonbin.io/v3/b/659b6e0a1f5677401f18ffe1"
+
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Master-Key': '$2a$10$iTnNq06UFXSRHIYKj1EoCuNZEjdkvpZLt9rWEJva7c08HOEdwVDJq'
+    }
+    response = requests.put(json_bin, data=data, headers=headers)
 
     if response.status_code == 200:
         print(f"{timestamp()} | Publish successful.")
@@ -280,19 +406,45 @@ def publish(data):
         print(f"Error: {response.status_code}")
         print(f"Response: {response.text}\n")
 
+
+def fetch():
+    print(f"{timestamp()} | Fetching data...")
+
+    json_bin = "https://api.jsonbin.io/v3/b/659b6e0a1f5677401f18ffe1"
+
+    headers = {
+        'Content-Type': 'application/json',
+        'X-Master-Key': '$2a$10$iTnNq06UFXSRHIYKj1EoCuNZEjdkvpZLt9rWEJva7c08HOEdwVDJq'
+    }
+
+    response = requests.get(json_bin, headers=headers)
+
+    if response.status_code == 200:
+        print(f"{timestamp()} | Fetch successful.")
+        print(f"Current published data:\n{response.text}")
+    else:
+        print(f"{timestamp()} | Fetch failed.")
+        print(f"Error: {response.status_code}")
+        print(f"Response: {response.text}\n")
+
+
 def timestamp():
     return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
+
 
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 9:
+        if hour == 21:
             truck_data = scrape()
-            print(f"\nScraped data:\n{truck_data}\n")
+            pretty_truck_data = json.dumps(truck_data, indent=2)
+            print("\nScraped data:\n")
+            print(f"{pretty_truck_data}\n")
             if truck_data:
                 publish(truck_data)
             print("Script will run again in 24 hours.\n")
             time.sleep(86400)
         else:
-            print(f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+            print(
+                f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
             time.sleep(3600)
