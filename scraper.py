@@ -15,6 +15,7 @@ import json
 
 # webdriver setup
 
+
 def webdriver_init():
     # service = Service("/Users/andrew/Developer/chromedriver")
     service = Service(ChromeDriverManager().install())
@@ -25,6 +26,7 @@ def webdriver_init():
     return driver
 
 # date-time varialbes for classes
+
 
 class DateData:
     def __init__(self):
@@ -43,6 +45,7 @@ class DateData:
 # -------------------- per-brewery scrape functions -------------------- #
 
 # beautifulsoup: in use
+
 
 def bauhaus():
     calendar = DateData()
@@ -108,7 +111,7 @@ def fifty_six():
 
     calendar_elements = soup.find_all(
         "div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")
-    
+
     truck = ""
 
     for element in calendar_elements:
@@ -125,7 +128,7 @@ def fifty_six():
                 pass
         else:
             pass
-    
+
     if not truck:
         return "No food truck listed for today."
 
@@ -376,6 +379,7 @@ def insight():
         return "No food truck listed for today."
 
 # ------------------------------- CORE ------------------------------- #
+
 
 def scrape():
     print(f"{timestamp()} | Attempting scrape...")
