@@ -84,7 +84,7 @@ def elm_creek():
         event_strings.append(event)
 
     if event_strings:
-        non_trucks = ["Kegs & Eggs", "Board Games + Adult Coloring Night", "Trivia Mafia",
+        non_trucks = ["Kegs & Eggs", "Board Games + Adult Coloring Night", "Board Games + Adult Coloring Night ", "Trivia Mafia",
                       "Trivia Mafia ", "Meat Raffle", "Essential Oils Roller Making", "SEEK Sunday"]
         event_strings = [
             string for string in event_strings if string not in non_trucks]
@@ -452,7 +452,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 21:
+        if hour == 16:
             truck_data = scrape()
             pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
