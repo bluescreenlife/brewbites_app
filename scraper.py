@@ -97,9 +97,10 @@ def elm_creek():
 
 def fifty_six():
     calendar = DateData()
-    today_num = calendar.today_num
-    if calendar.today_num_no_zero:
-        today_num = calendar.today_num_no_zero
+    # today_num = calendar.today_num
+    # if calendar.today_num_no_zero:
+    #     today_num = calendar.today_num_no_zero
+    today_num = "9"
 
     response = requests.get("https://56brewing.com/events/")
     html = response.text
@@ -107,18 +108,26 @@ def fifty_six():
 
     calendar_elements = soup.find_all(
         "div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")
-    top_element = calendar_elements[0]
-    date = top_element.find(
-        "span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
+    
+    truck = ""
 
-    if date == today_num:
-        description = top_element.find(
-            "a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
-        if "Food" in description:
-            truck = description.split(":")[1].strip()
-            return (truck)
+    for element in calendar_elements:
+        date = element.find(
+            "span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
+
+        if date == today_num:
+            description = element.find(
+                "a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
+            if "Food" in description:
+                truck = description.split(":")[1].strip()
+                return truck
+            else:
+                pass
         else:
-            return "No food truck listed for today."
+            pass
+    
+    if not truck:
+        return "No food truck listed for today."
 
 
 def sociable_ciderwerks():  # resident truck, rarely changes
@@ -257,8 +266,12 @@ def steeltoe():
             By.XPATH, "//td[contains(@class, 'today')]")
         truck_element = today_element.find_element(
             By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
-        truck = truck_element.get_attribute(
-            "textContent").split("-")[0].strip()
+        truck_text = truck_element.get_attribute(
+            "textContent")
+        if "TBD" in truck_text:
+            truck = "TBD"
+        else:
+            truck = truck_text.split("-")[0].strip()
         driver.close()
         return truck
     except NoSuchElementException:
