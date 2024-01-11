@@ -111,6 +111,8 @@ def fifty_six():
         return truck
     except ValueError:
         return "No food truck listed for today."
+    except AttributeError:
+        return "No food truck listed for today."
 
 
 def sociable_ciderwerks():  # resident truck, rarely changes
@@ -444,7 +446,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 11:
+        if hour == 9:
             truck_data = scrape()
             pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
