@@ -1,12 +1,15 @@
 from flask import Flask, render_template
 from datetime import datetime
+import pytz
 import requests
 
 app = Flask(__name__)
 
 @app.route("/")
 def msp():
-    date = datetime.now().strftime("%m/%d/%Y")
+    central = pytz.timezone('US/Central')
+    now_central = datetime.now(central)
+    date = now_central.strftime("%m/%d/%Y")
 
     json_bin = "https://api.jsonbin.io/v3/b/659b6e0a1f5677401f18ffe1"
 
@@ -24,6 +27,9 @@ def msp():
         print(response.status_code, response.text)
         return render_template("maintenance.html")
     
+@app.route("/about")
+def about():
+    return render_template("about.html")
 
 if __name__ == "__main__":
     app.run(debug=True)
