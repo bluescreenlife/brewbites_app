@@ -229,7 +229,7 @@ def bad_weather():
         truck = truck_element.text.split(")")[1].strip()
         driver.close()
         return truck
-    except NoSuchElementException:
+    except NoSuchElementException or IndexError:
         try:
             today_element = driver.find_element(
                 By.XPATH, "//td[contains(@class, 'today')]")
@@ -238,7 +238,7 @@ def bad_weather():
             truck = truck_element.text.split(":")[1].strip()
             driver.close()
             return truck
-        except NoSuchElementException:
+        except NoSuchElementException or IndexError:
             driver.close()
             return "No food truck listed for today."
 
