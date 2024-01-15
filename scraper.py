@@ -462,19 +462,18 @@ def timestamp():
 
 
 if __name__ == "__main__":
-    # while True:
-    #     hour = datetime.datetime.now().hour
-    #     if hour == 20:
-    #         truck_data = scrape()
-    #         pretty_truck_data = json.dumps(truck_data, indent=2)
-    #         print("\nScraped data:\n")
-    #         print(f"{pretty_truck_data}\n")
-    #         if truck_data:
-    #             publish(truck_data)
-    #         print("Script will run again in 24 hours.\n")
-    #         time.sleep(86400)
-    #     else:
-    #         print(
-    #             f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-    #         time.sleep(3600)
-    print(bad_weather())
+    while True:
+        hour = datetime.datetime.now().hour
+        if hour == 20:
+            truck_data = scrape()
+            pretty_truck_data = json.dumps(truck_data, indent=2)
+            print("\nScraped data:\n")
+            print(f"{pretty_truck_data}\n")
+            if truck_data:
+                publish(truck_data)
+            print("Script will run again in 24 hours.\n")
+            time.sleep(86400)
+        else:
+            print(
+                f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+            time.sleep(3600)
