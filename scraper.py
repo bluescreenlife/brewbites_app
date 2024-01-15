@@ -100,19 +100,28 @@ def fifty_six():
     response = requests.get("https://56brewing.com/events/")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
+    calendar = DateData()
+    today_num = calendar.today_num
+    if calendar.today_num_no_zero:
+        today_num = calendar.today_num_no_zero
 
-    today_element = soup.find(
-        "div", "tribe-events-calendar-month__day tribe-events-calendar-month__day--current")
+    date_matches = []
+    truck = "No food truck listed for today."
 
-    try:
-        food_element = today_element.find(
-            'a', attrs={'title': lambda value: value and 'Food' in value})
-        truck = food_element.get_text().split(":")[1].strip()
-        return truck
-    except ValueError:
-        return "No food truck listed for today."
-    except AttributeError:
-        return "No food truck listed for today."
+    top_5_elements = soup.find_all("div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")[:4]
+
+    for element in top_5_elements:
+        date = element.find("span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
+        if date == today_num:
+            date_matches.append(element)
+    
+    if date_matches:
+        for element in date_matches:
+            text = element.find("a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
+            if "Food" in text:
+                truck = text.split(":")[1].strip()
+    
+    return truck
 
 
 def sociable_ciderwerks():  # resident truck, rarely changes
@@ -221,8 +230,17 @@ def bad_weather():
         driver.close()
         return truck
     except NoSuchElementException:
-        driver.close()
-        return "No food truck listed for today."
+        try:
+            today_element = driver.find_element(
+                By.XPATH, "//td[contains(@class, 'today')]")
+            truck_element = today_element.find_element(
+                By.XPATH, ".//span[contains(@class, 'item-title') and contains(text(), 'FOOD TRUCK')]")
+            truck = truck_element.text.split(":")[1].strip()
+            driver.close()
+            return truck
+        except NoSuchElementException:
+            driver.close()
+            return "No food truck listed for today."
 
 
 def inbound():
@@ -444,18 +462,19 @@ def timestamp():
 
 
 if __name__ == "__main__":
-    while True:
-        hour = datetime.datetime.now().hour
-        if hour == 9:
-            truck_data = scrape()
-            pretty_truck_data = json.dumps(truck_data, indent=2)
-            print("\nScraped data:\n")
-            print(f"{pretty_truck_data}\n")
-            if truck_data:
-                publish(truck_data)
-            print("Script will run again in 24 hours.\n")
-            time.sleep(86400)
-        else:
-            print(
-                f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
-            time.sleep(3600)
+    # while True:
+    #     hour = datetime.datetime.now().hour
+    #     if hour == 20:
+    #         truck_data = scrape()
+    #         pretty_truck_data = json.dumps(truck_data, indent=2)
+    #         print("\nScraped data:\n")
+    #         print(f"{pretty_truck_data}\n")
+    #         if truck_data:
+    #             publish(truck_data)
+    #         print("Script will run again in 24 hours.\n")
+    #         time.sleep(86400)
+    #     else:
+    #         print(
+    #             f"{timestamp()} | Current time not check time. Retrying in 1 hour.\n")
+    #         time.sleep(3600)
+    print(bad_weather())
