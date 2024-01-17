@@ -229,7 +229,7 @@ def bad_weather():
         truck = truck_element.text.split(")")[1].strip()
         driver.close()
         return truck
-    except NoSuchElementException or IndexError:
+    except:
         try:
             today_element = driver.find_element(
                 By.XPATH, "//td[contains(@class, 'today')]")
@@ -238,7 +238,7 @@ def bad_weather():
             truck = truck_element.text.split(":")[1].strip()
             driver.close()
             return truck
-        except NoSuchElementException or IndexError:
+        except:
             driver.close()
             return "No food truck listed for today."
 
@@ -326,7 +326,7 @@ def forgotten_star():
     driver.get("https://www.forgottenstarbrewing.com/food-drink")
     driver.execute_script("window.scrollTo(0, 2500)")
 
-    time.sleep(5)
+    time.sleep(7)
 
     iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
         (By.XPATH, '//iframe[@class="nKphmK" and @title="Calendar" and @aria-label="Calendar"]')))
