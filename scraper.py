@@ -1,5 +1,6 @@
 '''Retrieves local brewery food trucks operating today in the Twin Cities, MN.
 Publishes data to a hosted json bin.'''
+from pendulum import today
 import requests
 from bs4 import BeautifulSoup
 import datetime
@@ -16,16 +17,19 @@ import json
 
 # webdriver setup
 
+
 def webdriver_init():
     # service = Service("/Users/andrew/Developer/chromedriver")
     service = Service(ChromeDriverManager().install())
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
+    chrome_options.add_argument("window-size=1200x1200")
     chrome_options.add_experimental_option("detach", True)
     driver = webdriver.Chrome(service=service, options=chrome_options)
     return driver
 
 # date-time varialbes for classes
+
 
 class DateData:
     def __init__(self):
@@ -44,6 +48,7 @@ class DateData:
 # -------------------- per-brewery scrape functions -------------------- #
 
 # beautifulsoup:
+
 
 def bauhaus():
     calendar = DateData()
@@ -108,19 +113,26 @@ def fifty_six():
     date_matches = []
     truck = "No food truck listed for today."
 
-    top_5_elements = soup.find_all("div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")[:4]
+    top_5_elements = soup.find_all(
+        "div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")[:4]
 
     for element in top_5_elements:
-        date = element.find("span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
+        date = element.find(
+            "span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
         if date == today_num:
             date_matches.append(element)
-    
+
     if date_matches:
         for element in date_matches:
-            text = element.find("a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
-            if "Food" in text:
+            text = element.find(
+                "a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
+            if text.strip() == "B.Y.O. Food":
+                truck = text.strip()
+                return truck
+            elif "Food" in text:
                 truck = text.split(":")[1].strip()
-    
+                return truck
+
     return truck
 
 
@@ -216,31 +228,72 @@ def fair_state():  # no current trucks listed, check back later
 def bad_weather():
     calendar = DateData()
     month_year = calendar.month_year
+    url = f"https://badweatherbrewery.com/events?view=calendar&month={month_year}"
 
     driver = webdriver_init()
-    driver.get(
-        f"https://badweatherbrewery.com/events?view=calendar&month={month_year}")
+    driver.get(url)
 
+    # wait for pop-up
+    time.sleep(3)
+
+    # close pop-up
+    try:
+        popup_close = driver.find_element(
+            By.XPATH, ".//a[contains(@class, 'sqs-popup-overlay-close')]")
+        popup_close.click()
+    except NoSuchElementException:
+        pass
+
+    driver.execute_script("window.scrollTo(0, 1200)")
+    time.sleep(3)
+
+    today_element = None
+    truck = ""
+
+    # get calendar element for today
     try:
         today_element = driver.find_element(
             By.XPATH, "//td[contains(@class, 'today')]")
-        truck_element = today_element.find_element(
-            By.XPATH, ".//span[contains(@class, 'item-title') and contains(text(), '(Food Truck)')]")
-        truck = truck_element.text.split(")")[1].strip()
-        driver.close()
-        return truck
-    except:
+    except NoSuchElementException:
+        driver.quit()
+        return "Eventlist locator error."
+
+    # check for food truck via several formats
+    if today_element:
+        # image format - click through and get truck
         try:
-            today_element = driver.find_element(
-                By.XPATH, "//td[contains(@class, 'today')]")
-            truck_element = today_element.find_element(
-                By.XPATH, ".//span[contains(@class, 'item-title') and contains(text(), 'FOOD TRUCK')]")
-            truck = truck_element.text.split(":")[1].strip()
-            driver.close()
-            return truck
-        except:
-            driver.close()
-            return "No food truck listed for today."
+            image = today_element.find_element(By.TAG_NAME, "img")
+            image.click()
+
+            time.sleep(5)
+
+            event_text = driver.find_element(
+                By.CLASS_NAME, "eventitem-title").text.strip()
+
+            if "Food" or "Food Truck" or "Truck" in event_text:
+                truck = event_text
+        except NoSuchElementException:
+            pass
+
+        # if no image, search today's events for food truck
+        if not truck:
+            try:
+                truck = today_element.find_element(
+                    By.XPATH, ".//span[contains(@class, 'item-title') and contains(text(), 'Food Truck')]").text.strip()
+            except NoSuchElementException:
+                pass
+
+    driver.close()
+
+    if truck:  # will contain food/truck text in this case
+        if ")" in truck:
+            truck = truck.split(")")[1].strip()
+        else:
+            pass
+
+        return truck
+    else:
+        return "No food truck listed for today."
 
 
 def inbound():
@@ -268,8 +321,8 @@ def steeltoe():
     truck = "No food truck listed for today."
 
     today_element = driver.find_element(
-            By.XPATH, "//td[contains(@class, 'today')]")
-    
+        By.XPATH, "//td[contains(@class, 'today')]")
+
     try:
         truck_element = today_element.find_element(
             By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Food Truck')]")
@@ -285,9 +338,9 @@ def steeltoe():
         try:
             truck_element = today_element.find_element(
                 By.XPATH, ".//a[contains(@class, 'flyoutitem-link') and contains(text(), 'Pop-Up')]")
-            
+
             truck = truck_element.get_attribute(
-            "textContent")
+                "textContent")
         except NoSuchElementException:
             pass
 
@@ -464,7 +517,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 20:
+        if hour == 17:
             truck_data = scrape()
             pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
