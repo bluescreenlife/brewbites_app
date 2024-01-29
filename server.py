@@ -1,16 +1,10 @@
 from flask import Flask, render_template
-from datetime import datetime
-import pytz
 import requests
 
 app = Flask(__name__)
 
 @app.route("/")
 def msp():
-    central = pytz.timezone('US/Central')
-    now_central = datetime.now(central)
-    date = now_central.strftime("%m/%d/%Y")
-
     json_bin = "https://api.jsonbin.io/v3/b/659b6e0a1f5677401f18ffe1"
 
     headers = {
@@ -21,7 +15,8 @@ def msp():
     response = requests.get(json_bin, headers=headers)
     
     if response.status_code == 200:
-        trucks = response.json()["record"]
+        date = response.json()["record"]["report"]["date"]
+        trucks = response.json()["record"]["trucks"]
         return render_template("index.html", date=date, trucks=trucks)
     else:
         print(response.status_code, response.text)

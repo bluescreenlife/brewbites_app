@@ -1,6 +1,5 @@
 '''Retrieves local brewery food trucks operating today in the Twin Cities, MN.
 Publishes data to a hosted json bin.'''
-from pendulum import today
 import requests
 from bs4 import BeautifulSoup
 import datetime
@@ -450,25 +449,27 @@ def scrape():
     print(f"{timestamp()} | Attempting scrape...")
 
     data = {
-        f"56": fifty_six(),
-        f"Alloy": alloy(),
-        f"Bad Weather": bad_weather(),
-        f"Bauhaus": bauhaus(),
-        f"BlackStack": blackstack(),
-        f"Elm Creek": elm_creek(),
-        f"Forgotten Star": forgotten_star(),
-        f"Headflyer": headflyer(),
-        f"Inbound": inbound(),
-        f"Insight": insight(),
-        f"Lake Monster": lake_monster(),
-        f"Sociable Ciderwerks": sociable_ciderwerks(),
-        f"Steel Toe": steeltoe()
+        "report": {"date": timestamp().split("-")[0].strip()},
+        "trucks": {
+            f"56": fifty_six(),
+            f"Alloy": alloy(),
+            f"Bad Weather": bad_weather(),
+            f"Bauhaus": bauhaus(),
+            f"BlackStack": blackstack(),
+            f"Elm Creek": elm_creek(),
+            f"Forgotten Star": forgotten_star(),
+            f"Headflyer": headflyer(),
+            f"Inbound": inbound(),
+            f"Insight": insight(),
+            f"Lake Monster": lake_monster(),
+            f"Sociable Ciderwerks": sociable_ciderwerks(),
+            f"Steel Toe": steeltoe()
+        }
     }
 
     json_data = json.dumps(data)
     print(f"{timestamp()} | Scrape successful.")
     return json_data
-
 
 def publish(data):
     print(f"{timestamp()} | Attempting publish...")
@@ -517,7 +518,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 17:
+        if hour == 19:
             truck_data = scrape()
             pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
