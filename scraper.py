@@ -1,5 +1,6 @@
 '''Retrieves local brewery food trucks operating today in the Twin Cities, MN.
 Publishes data to a hosted json bin.'''
+from h11 import Data
 import requests
 from bs4 import BeautifulSoup
 import datetime
@@ -15,8 +16,6 @@ import requests
 import json
 
 # webdriver setup
-
-
 def webdriver_init():
     # service = Service("/Users/andrew/Developer/chromedriver")
     service = Service(ChromeDriverManager().install())
@@ -28,8 +27,6 @@ def webdriver_init():
     return driver
 
 # date-time varialbes for classes
-
-
 class DateData:
     def __init__(self):
         self.now = datetime.datetime.now()
@@ -47,8 +44,6 @@ class DateData:
 # -------------------- per-brewery scrape functions -------------------- #
 
 # beautifulsoup:
-
-
 def bauhaus():
     calendar = DateData()
     weekday_str = calendar.weekday_str
@@ -105,34 +100,34 @@ def fifty_six():
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     calendar = DateData()
-    today_num = calendar.today_num
-    if calendar.today_num_no_zero:
-        today_num = calendar.today_num_no_zero
+    today = calendar.year_month_day
 
-    date_matches = []
     truck = "No food truck listed for today."
 
-    top_5_elements = soup.find_all(
-        "div", class_="tribe-common-g-row tribe-events-calendar-list__event-row")[:4]
-
-    for element in top_5_elements:
-        date = element.find(
-            "span", class_="tribe-events-calendar-list__event-date-tag-daynum tribe-common-h5 tribe-common-h4--min-medium").get_text().strip()
-        if date == today_num:
-            date_matches.append(element)
-
-    if date_matches:
-        for element in date_matches:
-            text = element.find(
-                "a", class_="tribe-events-calendar-list__event-title-link tribe-common-anchor-thin").get_text().strip()
-            if text.strip() == "B.Y.O. Food":
-                truck = text.strip()
-                return truck
-            elif "Food" in text:
-                truck = text.split(":")[1].strip()
-                return truck
+    try:
+        date_element = soup.select_one(f'[aria-labelledby="tribe-events-calendar-day-{today}"]')
+        truck = date_element.select_one('a[title*="Food"]').get_text().split(":")[1].strip()
+    except AttributeError:
+        pass
 
     return truck
+
+
+def fair_state():  
+    calendar = DateData()
+    date = calendar.date_str
+
+    response = requests.get(f"https://fairstate.coop/events/?fwp_event_date={date}")
+    html = response.text
+    soup = BeautifulSoup(html, "html.parser")
+    food_event = soup.find("span", class_="ui-tag color--dark size--small excerpt-box-category excerpt-box-category-food")
+
+    if food_event:
+        a_container = food_event.find_parent("a")
+        food = a_container.find("h4", class_="excerpt-box-title").get_text().strip()
+        return food
+    else:
+        return "No food listed for today."
 
 
 def sociable_ciderwerks():  # resident truck, rarely changes
@@ -181,6 +176,7 @@ def blackstack():
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
 
+
     if today_num_no_zero:
         date_element = soup.find(
             "div", attrs={'data-hook': f'calendar-day-{today_num_no_zero}'})
@@ -197,7 +193,6 @@ def blackstack():
 
 
 # beautifulsoup: not in use
-
 def bent():  # no current trucks listed, check later
     response = requests.get("https://www.bentbrewstillery.com/")
     html = response.text
@@ -211,19 +206,10 @@ def broken_clock():  # no current trucks listed, check back later
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
     element = soup.find()
-    print(element)
-
-
-def fair_state():  # no current trucks listed, check back later
-    response = requests.get("")
-    html = response.text
-    soup = BeautifulSoup(html, "html.parser")
-    element = soup.find()
-    print(element)
+    print(element)      
 
 
 # selenium webdriver:
-
 def bad_weather():
     calendar = DateData()
     month_year = calendar.month_year
@@ -378,7 +364,7 @@ def forgotten_star():
     driver.get("https://www.forgottenstarbrewing.com/food-drink")
     driver.execute_script("window.scrollTo(0, 2500)")
 
-    time.sleep(7)
+    time.sleep(10)
 
     iframe = WebDriverWait(driver, 10).until(EC.presence_of_element_located(
         (By.XPATH, '//iframe[@class="nKphmK" and @title="Calendar" and @aria-label="Calendar"]')))
@@ -444,32 +430,30 @@ def insight():
 
 # ------------------------------- CORE ------------------------------- #
 
-
 def scrape():
     print(f"{timestamp()} | Attempting scrape...")
 
     data = {
-        "report": {"date": timestamp().split("-")[0].strip()},
-        "trucks": {
-            f"56": fifty_six(),
-            f"Alloy": alloy(),
-            f"Bad Weather": bad_weather(),
-            f"Bauhaus": bauhaus(),
-            f"BlackStack": blackstack(),
-            f"Elm Creek": elm_creek(),
-            f"Forgotten Star": forgotten_star(),
-            f"Headflyer": headflyer(),
-            f"Inbound": inbound(),
-            f"Insight": insight(),
-            f"Lake Monster": lake_monster(),
-            f"Sociable Ciderwerks": sociable_ciderwerks(),
-            f"Steel Toe": steeltoe()
-        }
+        f"56": fifty_six(),
+        f"Alloy": alloy(),
+        f"Bad Weather": bad_weather(),
+        f"Bauhaus": bauhaus(),
+        f"BlackStack": blackstack(),
+        f"Elm Creek": elm_creek(),
+        f"Fair State": fair_state(),
+        f"Forgotten Star": forgotten_star(),
+        f"Headflyer": headflyer(),
+        f"Inbound": inbound(),
+        f"Insight": insight(),
+        f"Lake Monster": lake_monster(),
+        f"Sociable Ciderwerks": sociable_ciderwerks(),
+        f"Steel Toe": steeltoe()
     }
 
     json_data = json.dumps(data)
     print(f"{timestamp()} | Scrape successful.")
     return json_data
+
 
 def publish(data):
     print(f"{timestamp()} | Attempting publish...")
@@ -518,11 +502,11 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.datetime.now().hour
-        if hour == 19:
+        if hour == 10:
             truck_data = scrape()
-            pretty_truck_data = json.dumps(truck_data, indent=2)
+            # pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
-            print(f"{pretty_truck_data}\n")
+            print(truck_data)
             if truck_data:
                 publish(truck_data)
             print("Script will run again in 24 hours.\n")
