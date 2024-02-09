@@ -1,5 +1,6 @@
-{% include "header.html" %}
-<!-- Main Content-->
+{% extends "base.html" %}
+{% block title %}About{% endblock %}
+{% block content %}
 <main class="my-5">
   <div class="container px-4 px-lg-5">
     <div class="row gx-4 gx-lg-5 justify-content-center">
@@ -15,8 +16,7 @@
       <div class="col-md-12 col-lg-8 mt-3 mt-lg-0">
         <h2>About Me</h2>
         <p>
-          I'm an ex-educator, self-taught developer, and stay-at-home dad who
-          likes beer and food.
+          I'm an ex-educator, now self-taught developer, who likes cold beer and good food.
         </p>
         <p>
           The idea for this site came from countless hours of looking up
@@ -25,11 +25,6 @@
           could write a script to fetch me a list of what trucks are around town
           today. Shortly thereafter I learned to build simple Flask websites,
           and how to add Bootstrap styling, so here we are!
-        </p>
-        <p>
-          I hope you get some use out of the site, and if things aren't working
-          properly please be patient, I'm just one guy coding in his free time
-          😅
         </p>
         <p>
           If you get some use out of the site, please consider supporting my
@@ -58,4 +53,4 @@
     </div>
   </div>
 </main>
-{% include "footer.html" %}
+{% endblock %}

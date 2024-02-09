@@ -1,391 +1,47 @@
-{% include "header.html" %}
-    <! -- album -- !>
-    <div class="container my-5">
-      <div class="p-5 text-center bg-body-tertiary rounded-3">
-        <h1 class="text-body-emphasis">Hungry?</h1>
-        <p class="lead">
-          Food trucks at Minneapolis/St. Paul breweries today, {{ date }}
-        </p>
-      </div>
-    </div>
-    <div class="album py-5 bg-body-tertiary">
-      <div class="container">
-        <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-3">
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/56.webp" />
-              <text x="50%" y="50%" fill="#eceeef" dy=".3em"></text>
-              <div class="card-body">
-                <p class="card-text">56 Brewing: {{ trucks['56'] }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://56brewing.com/events/"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/7NZJvtoaShqmfki96"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">NE Mpls</small>
-                </div>
+{% extends 'base.html' %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<div class="container my-5">
+  <div class="p-5 text-center bg-body-tertiary rounded-3">
+    <h1 class="text-body-emphasis">Hungry?</h1>
+    <p class="lead">
+      Food trucks at Minneapolis/St. Paul breweries today, {{ date }}
+    </p>
+  </div>
+</div>
+<div class="album py-5 bg-body-tertiary">
+  <div class="container">
+    <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-3">
+      {% for brewery in breweries %}
+      <div class="col">
+        <div class="card shadow-sm">
+          <img src="{{ brewery.img_url }}" />
+          <div class="card-body">
+            <p class="card-text">{{ brewery.name }} {{ brewery.todays_food }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <a
+                  href="{{ brewery.site_url }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Website
+                </a>
+                <a
+                  href="{{ brewery.maps_url }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Google Maps
+                </a>
               </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Alloy.png" />
-              <div class="card-body">
-                <p class="card-text">Alloy Brewing: {{ trucks['Alloy'] }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.alloybrewingcompany.com/taproom?view=calendar"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/LbwQFaSHQt9hNDtB6"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">Coon Rapids</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Bad_Weather.png" />
-              <div class="card-body">
-                <p class="card-text">
-                  Bad Weather Brewing: {{ trucks['Bad Weather'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.badweatherbrewery.com/events"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/vSMhrsPCHqEkWfcZ8"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">St. Paul</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Bauhaus.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Bauhaus Brew Labs: {{ trucks['Bauhaus'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.bauhausbrewlabs.com/food"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/frhDNrS1WojZ94LU7"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">NE Mpls</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Blackstack.jpg" />
-              <div class="card-body">
-                <p class="card-text">
-                  BlackStack Brewing: {{ trucks['BlackStack'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.blackstackbrewing.com/events"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/UztKheoxEaxb7ffa8"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">St. Paul</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Elm Creek.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Elm Creek Brewing: {{ trucks['Elm Creek'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.elmcreekbrewing.com/events"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/PD49mqnY3LGHjihp8"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">Champlin</small>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Forgotten Star.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Forgotten Star Brewing: {{ trucks['Forgotten Star'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.forgottenstarbrewing.com/food-drink"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/H7D7TjY1qvKCaJjc9"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">Fridley</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Headflyer.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Headflyer Brewing: {{ trucks['Headflyer'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.headflyerbrewing.com/food/"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/FLnFjXsR3Nzhow7E6"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">NE Mpls</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Inbound.png" />
-              <div class="card-body">
-                <p class="card-text">Inbound BrewCo: {{ trucks['Inbound'] }}</p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://inboundbrew.co/inbound-brewco-food-trucks"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/6uLiik1bcbiEU91g6"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">North Loop</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Insight.jpg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Insight Brewing: {{ trucks['Insight'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.insightbrewing.com/food-trucks-events"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/QXMZ6pBNYrwiQKZa8"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">NE Mpls</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Lake Monster.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Lake Monster Brewing: {{ trucks['Lake Monster'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.lakemonsterbrewing.com/#intro"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/BidenByrVtqFFm2a7"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">St. Paul</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Sociable.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Sociable Ciderwerks: {{ trucks['Sociable Ciderwerks'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://sociablecider.com/sociablefoodtruck"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/HFLaWvUtersugCxc9"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">NE Mpls</small>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div class="col">
-            <div class="card shadow-sm">
-              <img src="../static/images/breweries/Steel Toe.jpeg" />
-              <div class="card-body">
-                <p class="card-text">
-                  Steel Toe Brewing: {{ trucks['Steel Toe'] }}
-                </p>
-                <div class="d-flex justify-content-between align-items-center">
-                  <div class="btn-group">
-                    <a
-                      href="https://www.steeltoebrewing.com/"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Website
-                    </a>
-                    <a
-                      href="https://maps.app.goo.gl/RYWnu732EKTmAJCm7"
-                      target="_blank"
-                      class="btn btn-sm btn-outline-secondary"
-                    >
-                      Google Maps
-                    </a>
-                  </div>
-                  <small class="text-body-secondary">St. Louis Park</small>
-                </div>
-              </div>
+              <small class="text-body-secondary">{{ brewery.city }}</small>
             </div>
           </div>
         </div>
       </div>
+      {% endfor %}
     </div>
-{% include "footer.html" %}
+  </div>
+</div>
+{% endblock %}

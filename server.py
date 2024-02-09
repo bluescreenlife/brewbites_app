@@ -1,69 +1,96 @@
 from flask import Flask, render_template, redirect, url_for, flash
+from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
 from flask_ckeditor import CKEditorField
-from wtforms import StringField, SubmitField, URLField, BooleanField, IntegerField, SelectField
-from wtforms.validators import DataRequired, URL
+from flask_login import UserMixin, login_user, LoginManager, login_required, current_user, logout_user
+from wtforms import StringField, SubmitField, URLField, BooleanField, IntegerField, SelectField, PasswordField
+from wtforms.validators import DataRequired, URL, Length
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
-from sqlalchemy import Boolean, Integer, Nullable, String, Text, Float
-import requests
+from sqlalchemy import Boolean, Integer, Nullable, String, Text, Float, select
 
 # brewery_list = ["56 Brewing", "Alloy Brewing", "Bad Weather Brewing", "Bauhaus Brew Labs", ]
 
 # ------------------------- FLASK SETUP ------------------------- #
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'SUPERSECRETKEY'
+Bootstrap5(app)
+# ------------------------- LOGIN SETUP ------------------------- #
+
+login_manager = LoginManager()
+login_manager.init_app(app)
 
 # ------------------------- DB SETUP ------------------------- #
 class Base(DeclarativeBase):
     pass
 
-# BREWERY DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///breweries.db'
-brewery_db = SQLAlchemy(model_class=Base)
-brewery_db.init_app(app)
+# MAIN BREWERY DB
+app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///brewbites.db'
 
-class Brewery(brewery_db.Model):
-    id = brewery_db.Column(Integer, primary_key=True)
-    name = brewery_db.Column(String(100), unique=True, nullable=False)
-    site_url = brewery_db.Column(String(250), unique=True, nullable=False)
-    img_url = brewery_db.Column(String(250), unique=True, nullable=False)
-    maps_url = brewery_db.Column(String(250), unique=True, nullable=False)
-    latitude = brewery_db.Column(Float, unique=True, nullable=False)
-    longitude = brewery_db.Column(Float, unique=True, nullable=False)
-    dog_friendly = brewery_db.Column(Boolean, nullable=True)
-    kid_friendly = brewery_db.Column(Boolean, nullable=True)
-    group_capactiy = brewery_db.Column(Integer, nullable=True)
-    beer_to_go = brewery_db.Column(Boolean, nullable=True)
-    avg_review = brewery_db.Column(Float, nullable=True)
-    num_reviews = brewery_db.Column(Integer, nullable=True)
-    todays_food = brewery_db.Column(String(100), nullable=True) # to be added via post request from scraper
-
-# FOOD TRUCK DB
+# Bind keys for additional databases
 app.config['SQLALCHEMY_BINDS'] = {
-    'food_truck_db': 'sqlite:///foodtrucks.db'
+    'truck_db': 'sqlite:///trucks.db',
+    'admin_db': 'sqlite:///admin.db'
 }
-food_truck_db = SQLAlchemy(model_class=Base)
-food_truck_db.init_app(app)
 
-class FoodTruck(food_truck_db.Model):
-    id = food_truck_db.Column(Integer, primary_key=True)
-    name = food_truck_db.Column(String(100), unique=True, nullable=False)
-    url = food_truck_db.Column(String(250), unique=True, nullable=True)
-    img_url = food_truck_db.Column(String(250), unique=True, nullable=True)
-    type = food_truck_db.Column(String(25), unique=False, nullable=False)
-    avg_review = brewery_db.Column(Float, nullable=True)
-    num_reviews = brewery_db.Column(Integer, nullable=True)
+db = SQLAlchemy(model_class=Base)
+db.init_app(app)
+
+class Brewery(db.Model):
+    # required
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String(100), unique=True, nullable=False)
+    site_url = db.Column(String(250), unique=True, nullable=False)
+    img_url = db.Column(String(250), unique=True, nullable=False)
+    city = db.Column(String(25), unique=False, nullable=False)
+    maps_url = db.Column(String(250), unique=True, nullable=False)
+    latitude = db.Column(Float, unique=True, nullable=False)
+    longitude = db.Column(Float, unique=True, nullable=False)
+    # optional/add later
+    dog_friendly = db.Column(Boolean, nullable=True)
+    kid_friendly = db.Column(Boolean, nullable=True)
+    group_capacity = db.Column(Integer, nullable=True)
+    beer_to_go = db.Column(Boolean, nullable=True)
+    avg_review = db.Column(Float, nullable=True)
+    num_reviews = db.Column(Integer, nullable=True)
+    todays_food = db.Column(String(100), nullable=True) # to be added via post request from scraper
+
+
+class FoodTruck(db.Model):
+    __bind_key__ = 'truck_db'
+    id = db.Column(Integer, primary_key=True)
+    name = db.Column(String(100), unique=True, nullable=False)
+    site_url = db.Column(String(250), unique=True, nullable=True)
+    img_url = db.Column(String(250), unique=True, nullable=True)
+    food_type = db.Column(String(25), unique=False, nullable=False)
+    avg_review = db.Column(Float, nullable=True)
+    num_reviews = db.Column(Integer, nullable=True)
+
+class Admin(UserMixin, db.Model):
+    __bind_key__ = 'admin_db'
+    id = db.Column(Integer, primary_key=True)
+    username = db.Column(String(20), unique=True)
+    password = db.Column(String(20))
+
+@login_manager.user_loader
+def load_user(user_id):
+    return db.get_or_404(Admin, user_id)
 
 with app.app_context():
-    brewery_db.create_all()
-    food_truck_db.create_all()
+    db.create_all()
+
 
 # ------------------------- FORM SETUP ------------------------- #
+class LoginForm(FlaskForm):
+    username = StringField(label="Username", validators=[DataRequired(), Length(min=6, max=20)])
+    password = PasswordField(label="Password", validators=[DataRequired()])
+    submit = SubmitField(label="Log In")
+
 class BreweryForm(FlaskForm):
     name = StringField(label="Name", validators=[DataRequired()])
-    url = URLField(label="Food Schedule URL", validators=[DataRequired()])
+    site_url = URLField(label="Food Schedule URL", validators=[DataRequired()])
     img_url = URLField(label="Brewery Preview Image URL", validators=[DataRequired()])
+    city = StringField(label="City", validators=[DataRequired()])
     maps_url = URLField(label="Google Maps URL", validators=[DataRequired()])
     dog_friendly = BooleanField(label="Dog Friendly")
     kid_friendly = BooleanField(label="Kid Friendly")
@@ -72,28 +99,24 @@ class BreweryForm(FlaskForm):
     submit = SubmitField(label="Add Brewery")
 
 class BreweryReviewForm(FlaskForm):
-    # breweries = brewery_db.session.execute(brewery_db.select(Brewery).order_by(Brewery.name)).scalars().all()
-    # brewery_names = [brewery.name for brewery in breweries]
-    # select_brewery = SelectField(label="Brewery", choices=brewery_names, validators=[DataRequired()])
-    # brewery can be selected by id when called from review get route
-
     beer_ratings = [('1', '🍺'), ('2', '🍺🍺'), ('3', '🍺🍺🍺'), ('4', '🍺🍺🍺🍺'), ('5', '🍺🍺🍺🍺🍺')]
     rating = SelectField(label="Rating", choices=beer_ratings)
-    comment = CKEditorField(label="Review")
+    review = CKEditorField(label="Review")
     submit = SubmitField(label="Submit")
 
 
 class TruckForm(FlaskForm):
+    food_types = ['American', 'BBQ', 'Chicken', 'Mexican', 'MN Street Food', 'Other', 'Pizza', 'Taco', 'Tibetan']
     name = StringField(label="Name", validators=[DataRequired()])
-    url = URLField(label="Website")
+    site_url = URLField(label="Website")
     img_url = URLField(label="Image URL")
-    type = StringField(label="Food Type", validators=[DataRequired()])
+    type = SelectField(label="Food Type", choices=food_types, validators=[DataRequired()])
     submit = SubmitField(label="Add Truck")
 
 class TruckReviewForm(FlaskForm):
     truck_ratings = [('1', '🚚'), ('2', '🚚🚚'), ('3', '🚚🚚🚚'), ('4', '🚚🚚🚚🚚'), ('5', '🚚🚚🚚🚚🚚')]
     rating = SelectField(label="Rating", choices=truck_ratings)
-    comment = CKEditorField(label="Review")
+    review = CKEditorField(label="Review")
     submit = SubmitField(label="Submit")
 
 
@@ -101,38 +124,94 @@ class TruckReviewForm(FlaskForm):
 
 @app.route("/")
 def home():
-    return render_template("index.html")
+    breweries = db.session.execute(db.select(Brewery).order_by(Brewery.name)).scalars().all()
+    return render_template("index.html", breweries=breweries, logged_in=current_user.is_authenticated)
     
 @app.route("/about")
 def about():
-    return render_template("about.html")
+    return render_template("about.html", logged_in=current_user.is_authenticated)
 
-@app.route("/add/<str:type>") # admin only
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = form.username.data
+        password = form.password.data
+
+        result = db.session.execute(db.select(Admin).where(Admin.username == username))
+        admin = result.scalar()
+
+        if admin:
+            if admin.password == password:
+                login_user(admin)
+                return redirect(url_for("add", type="select"))
+    return render_template("login.html", form=form, logged_in=current_user.is_authenticated)
+
+@app.route("/logout")
+@login_required
+def logout():
+    logout_user()
+    return redirect(url_for("home"))
+
+@app.route("/add/<string:type>", methods=["GET", "POST"])
+@login_required
 def add(type):
-    if type == "brewery":
+    
+    if type == "select":
+        return render_template("select.html", logged_in=current_user.is_authenticated)
+
+
+    elif type == "brewery":
         form = BreweryForm()
         if form.validate_on_submit():
-            lat_lon_segment = form.maps_url.data.strip("@")[1].strip(",")
-            lat = lat_lon_segment[0]
-            lon = lat_lon_segment[1]
-            print(f"Retrieved coordinates: {latitude},{longitude}")
+            url = form.maps_url.data
+            
+            lat_lon_str = url.split('@')[1].split(',')[0:2]
+
+            lat = float(lat_lon_str[0])
+            lon = float(lat_lon_str[1])
 
             new_brewery = Brewery(
-                name=form.name.data, site_url=form.site_url.data, img_url=form.site_url.data, 
-                maps_url=form.maps_url.data, latitude=lat, longitude=lon, dog_friendly=form.dog_friendly.data, 
-                kid_friendly=form.kid_friendly.data, group_capacity=form.group_capactiy.data, 
+                name=form.name.data,
+                site_url=form.site_url.data,
+                img_url=form.img_url.data, 
+                city=form.city.data,
+                maps_url=form.maps_url.data,
+                latitude=lat,
+                longitude=lon,
+                dog_friendly=form.dog_friendly.data, 
+                kid_friendly=form.kid_friendly.data,
+                group_capacity=form.group_capactiy.data, 
                 beer_to_go=form.beer_to_go.data
             )
 
-            brewery_db.session.add(new_brewery)
-            brewery_db.session.commit()
+            db.session.add(new_brewery)
+            db.session.commit()
 
-            return redirect(url_for("add"))
+            return redirect(url_for("home"))
+        else:
+            return render_template("add.html", form=form, type=type.title(), logged_in=current_user.is_authenticated)
 
     elif type == "truck":
-        pass
+        form = TruckForm()
+        if form.validate_on_submit():
 
-    return render_template(url_for("add.html"), type=type)
+            new_truck = FoodTruck(
+                name = form.name.data,
+                site_url = form.site_url.data,
+                img_url = form.img_url.data,
+                type = form.type.data
+            )
+
+            db.session.add(new_truck)
+            db.session.commit()
+
+            return redirect(url_for("home"))
+        else:
+            return render_template("add.html", form=form, type=type.title(), logged_in=current_user.is_authenticated)
+    
+    else:
+        return redirect(url_for("home"))
 
 @app.route("/map")
 def map():
