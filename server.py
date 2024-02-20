@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template, redirect, session, url_for, flash
+from flask import Flask, abort, render_template, redirect, url_for, flash
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -9,11 +9,11 @@ from wtforms.validators import DataRequired, URL, Length
 from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Boolean, Integer, Nullable, String, Text, Float, select
 from functools import wraps
-# brewery_list = ["56 Brewing", "Alloy Brewing", "Bad Weather Brewing", "Bauhaus Brew Labs", ]
+import os
 
 # ------------------------- FLASK SETUP ------------------------- #
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'SUPERSECRETKEY'
+app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
 Bootstrap5(app)
 # ------------------------- LOGIN SETUP ------------------------- #
 
@@ -40,14 +40,7 @@ class Base(DeclarativeBase):
     pass
 
 # MAIN BREWERY DB
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///brewbites.db'
-
-# Bind keys for additional databases
-# app.config['SQLALCHEMY_BINDS'] = {
-#     'truck_db': 'sqlite:///trucks.db',
-#     'brewery_db': 'sqlite:///breweries.db',
-#     'user_db': 'sqlite:///users.db'
-# }
+app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
@@ -346,7 +339,6 @@ def edit(type, id):
 
 @app.route("/map")
 def map():
-    # parse lat and lon from maps url if necessary
     return render_template("map.html", logged_in=current_user.is_authenticated, admin=is_admin())
 
 if __name__ == "__main__":
