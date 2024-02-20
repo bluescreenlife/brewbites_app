@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}Breweries{% endblock %}
+{% block content %}
+<!-- tags -->
+<div class="d-flex gap-2 justify-content-center py-5">
+    <span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis rounded-pill">American</span>
+    <span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill">BBQ</span>
+    <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Tacos</span>
+    <span class="badge bg-danger-subtle border border-danger-subtle text-danger-emphasis rounded-pill">Pizza</span>
+    <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">Chicken</span>
+    <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Other</span>
+    <span class="badge bg-light-subtle border border-light-subtle text-light-emphasis rounded-pill">All</span>
+  </div>
+<!-- truck cards -->
+<div class="album py-5 bg-body-tertiary">
+  <div class="container">
+    <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-3">
+      {% for truck in trucks %}
+      <div class="col">
+        <div class="card shadow-sm">
+          <img src="{{ truck.img_url }}" />
+          <div class="card-body">
+            <p class="card-text">{{ truck.name }} Brewery:</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <a
+                  href="{{ truck.site_url }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Menu
+                </a>
+                {% if logged_in and admin %}
+                <a
+                  href="{{ url_for('edit', type='truck', id=truck.id) }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Edit
+                </a>
+                {% endif %}
+              </div>
+              <small class="text-body-secondary">{{ truck.food_type }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

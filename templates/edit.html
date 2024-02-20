@@ -1,12 +1,12 @@
 {% extends "base.html" %}
 {% from 'bootstrap5/form.html' import render_form %}
-{% block title %}Add{% endblock %}
+{% block title %}Edit{% endblock %}
 {% block content %}
 <div class="container-fluid">
     <div class="row justify-content-center align-items-center" style="height: 100vh;">
         <div class="col-md-6 d-flex justify-content-center">
             <div class="card p-4" style="width: 50vw;">
-                <h1 class="text-center mb-4">Add {{ type }} Entry</h1>
+                <h1 class="text-center mb-4">Edit {{ type }} Entry</h1>
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}

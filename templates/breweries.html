@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+{% block title %}Breweries{% endblock %}
+{% block content %}
+<!-- Tags -->
+<div class="d-flex gap-2 justify-content-center py-5">
+  <span class="badge bg-primary-subtle border border-primary-subtle text-primary-emphasis rounded-pill">Allows Dogs</span>
+  <span class="badge bg-secondary-subtle border border-secondary-subtle text-secondary-emphasis rounded-pill">Kid Friendly</span>
+  <span class="badge bg-warning-subtle border border-warning-subtle text-warning-emphasis rounded-pill">NA Options</span>
+  <span class="badge bg-success-subtle border border-success-subtle text-success-emphasis rounded-pill">Event Space</span>
+  <span class="badge bg-info-subtle border border-info-subtle text-info-emphasis rounded-pill">Food Truck Today</span>
+</div>
+<!-- Brewery Cards -->
+<div class="album py-5 bg-body-tertiary">
+  <div class="container">
+    <div class="row row-cols-1 row-cols-md-1 row-cols-lg-3 g-3">
+      {% for brewery in breweries %}
+      <div class="col">
+        <div class="card shadow-sm">
+          <img src="{{ brewery.img_url }}" />
+          <div class="card-body">
+            <p class="card-text">{{ brewery.name }} {{ brewery.todays_food }}</p>
+            <div class="d-flex justify-content-between align-items-center">
+              <div class="btn-group">
+                <a
+                  href="{{ brewery.site_url }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Website
+                </a>
+                <a
+                  href="{{ brewery.maps_url }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Google Maps
+                </a>
+                {% if logged_in and admin %}
+                <a
+                  href="{{ url_for('edit', type='brewery', id=brewery.id) }}"
+                  target="_blank"
+                  class="btn btn-sm btn-outline-secondary"
+                >
+                  Edit
+                </a>
+                {% endif %}
+              </div>
+              <small class="text-body-secondary">{{ brewery.city }}</small>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

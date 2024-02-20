@@ -1,83 +1,44 @@
 <div class="container">
-  <header
-    class="d-flex flex-md-row flex-column align-items-center justify-content-md-between py-2 px-3 mb-4 pt-4 border-bottom"
-  >
-    <a
-      href="/"
-      class="mb-3 link-body-emphasis text-decoration-none text-center text-md-start"
-    >
-      <span class="fs-4">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          height="25"
-          fill="currentColor"
-          class="bi bi-truck-front"
-          viewBox="0 0 16 16"
-        >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="16"
-            height="16"
-            fill="currentColor"
-            class="bi bi-truck-front"
-            viewBox="0 0 16 16"
-          >
-            <path
-              d="M5 11a1 1 0 1 1-2 0 1 1 0 0 1 2 0m8 0a1 1 0 1 1-2 0 1 1 0 0 1 2 0m-6-1a1 1 0 1 0 0 2h2a1 1 0 1 0 0-2zM4 2a1 1 0 0 0-1 1v3.9c0 .625.562 1.092 1.17.994C5.075 7.747 6.792 7.5 8 7.5s2.925.247 3.83.394A1.008 1.008 0 0 0 13 6.9V3a1 1 0 0 0-1-1zm0 1h8v3.9q0 .002 0 0l-.002.004-.005.002h-.004C11.088 6.761 9.299 6.5 8 6.5s-3.088.26-3.99.406h-.003l-.005-.002L4 6.9q0 .002 0 0z"
-            />
-            <path
-              d="M1 2.5A2.5 2.5 0 0 1 3.5 0h9A2.5 2.5 0 0 1 15 2.5v9c0 .818-.393 1.544-1 2v2a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5V14H5v1.5a.5.5 0 0 1-.5.5h-2a.5.5 0 0 1-.5-.5v-2a2.5 2.5 0 0 1-1-2zM3.5 1A1.5 1.5 0 0 0 2 2.5v9A1.5 1.5 0 0 0 3.5 13h9a1.5 1.5 0 0 0 1.5-1.5v-9A1.5 1.5 0 0 0 12.5 1z"
-            />
-          </svg>
+  <header class="d-flex flex-wrap align-items-center justify-content-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0">
+      <a href="{{ url_for('home') }}" class="d-inline-flex link-body-emphasis text-decoration-none">
+        <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="currentColor" class="bi bi-truck-front-fill" viewBox="0 0 16 16">
+          <path d="M3.5 0A2.5 2.5 0 0 0 1 2.5v9c0 .818.393 1.544 1 2v2a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5V14h6v1.5a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-2c.607-.456 1-1.182 1-2v-9A2.5 2.5 0 0 0 12.5 0zM3 3a1 1 0 0 1 1-1h8a1 1 0 0 1 1 1v3.9c0 .625-.562 1.092-1.17.994C10.925 7.747 9.208 7.5 8 7.5s-2.925.247-3.83.394A1.008 1.008 0 0 1 3 6.9zm1 9a1 1 0 1 1 0-2 1 1 0 0 1 0 2m8 0a1 1 0 1 1 0-2 1 1 0 0 1 0 2m-5-2h2a1 1 0 1 1 0 2H7a1 1 0 1 1 0-2"/>
         </svg>
-        BrewBites
-      </span>
-    </a>
+        <h3 class="mb-0 ms-2">BrewBites</h3>
+      </a>
+    </div>
 
-    <ul class="nav nav-pills pb-3 text-center text-md-end">
-      <li class="nav-item px-1">
-        <a
-          href="{{ url_for('home') }}"
-          class="nav-link active"
-          aria-current="page"
-          >Home</a
-        >
-      </li>
-      <li class="nav-item px-1">
-        <a
-          href="{{ url_for('about') }}"
-          class="nav-link active"
-          aria-current="page"
-          >About</a
-        >
-      </li>
-      {% if not logged_in: %}
-      <li class="nav-item px-1">
-        <a
-          href="{{ url_for('login') }}"
-          class="nav-link active"
-          aria-current="page"
-          >Admin</a
-        >
-      </li>
-      {% else: %}
-      <li class="nav-item px-1">
-        <a
-          href="{{ url_for('add', type='select') }}"
-          class="nav-link active"
-          aria-current="page"
-          >Add</a
-        >
-      </li>
-      <li class="nav-item px-1">
-        <a
-          href="{{ url_for('logout') }}"
-          class="nav-link active"
-          aria-current="page"
-          >Logout</a
-        >
+    <ul class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+      <li><a href="{{ url_for('home') }}" class="nav-link px-2 link-secondary">Home</a></li>
+      <li><a href="{{ url_for('breweries') }}" class="nav-link px-2">Breweries</a></li>
+      <li><a href="{{ url_for('trucks') }}" class="nav-link px-2">Trucks</a></li>
+      <li><a href="{{ url_for('map') }}" class="nav-link px-2">Map</a></li>
+      <li><a href="{{ url_for('about') }}" class="nav-link px-2">About</a></li>
+      {% if logged_in and admin: %}
+      <li class="nav-item dropdown">
+        <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown" aria-expanded="false">Admin</a>
+        <ul class="dropdown-menu">
+          <li><a class="dropdown-item" href="{{ url_for('add', type='brewery') }}">Add Brewery</a></li>
+          <li><a class="dropdown-item" href="{{ url_for('add', type='truck') }}">Add Food Truck</a></li>
+        </ul>
       </li>
       {% endif %}
     </ul>
+
+    <div class="col-md-3 text-end">
+      {% if not logged_in: %}
+      <a href="{{ url_for('login') }}">
+      <button type="button" class="btn btn-outline-primary me-2">Login</button>
+      </a>
+      <a href="{{ url_for('sign_up') }}">
+      <button type="button" class="btn btn-primary">Sign Up</button>
+      </a>
+      {% else: %}
+      <a href="{{ url_for('logout') }}">
+      <button type="button" class="btn btn-outline-primary me-2">Logout</button>
+      </a>
+      {% endif %}
+    </div>
   </header>
 </div>
