@@ -66,7 +66,7 @@ def bauhaus():
             # print("Schedule week matches this week.")
             truck = schedule_element.select(
                             f'p:-soup-contains("{weekday_str.upper()}")')[0].get_text().split("-")[1].strip()
-            print(f"Today's food truck: {truck}")
+            # print(f"Today's food truck: {truck}")
             return truck.title()
         else:
             # print("Schedule unavailable.")
@@ -408,6 +408,7 @@ def forgotten_star():
 def insight():
     calendar = DateData()
     date = calendar.year_month_day
+    # print(f"Date: {date}")
 
     driver = webdriver_init()
     driver.get("https://www.insightbrewing.com/food-trucks-events")
@@ -415,29 +416,54 @@ def insight():
     time.sleep(5)
 
     # switch to calendar iframe
-    calendar_iframe_rule = (
-        By.XPATH, "/html/body/div/div/div[3]/div/main/div/div/div/div[2]/div/div/div/section[1]/div[2]/div/div[4]/iframe")
-    calendar_iframe = WebDriverWait(driver, 10).until(
-        EC.presence_of_element_located(calendar_iframe_rule))
-    driver.switch_to.frame(calendar_iframe)
+    try:
+        calendar_iframe_rule = (
+            By.XPATH, "/html/body/div/div/div[3]/div/main/div/div/div/div[2]/div/div/div/section[1]/div[2]/div/div[4]/iframe")
+        calendar_iframe = WebDriverWait(driver, 10).until(
+            EC.presence_of_element_located(calendar_iframe_rule))
+        
+        # if calendar_iframe:
+        #     print("iframe located")
+
+        driver.switch_to.frame(calendar_iframe)
+    except:
+        return "Schedule fetch error 1"
 
     # find and click expand button for today's date
     try:
-        date_element = driver.find_element(
-            By.XPATH, f"//td[contains(@id, '{date}')]")
+        date_element_rule = (By.XPATH, f"//td[contains(@id, '{date}')]")
+        date_element = WebDriverWait(driver, 10).until(EC.presence_of_element_located(date_element_rule))
+
+        # if date_element:
+        #     print(f"Date element located:\n{date_element}")
+        # else:
+        #     print("Date element not located.")
+
+        # date_element = driver.find_element(
+        #     By.XPATH, f"//td[contains(@id, '{date}')]")
+
         button_element = date_element.find_element(By.TAG_NAME, "button")
+
+        # if button_element:
+        #     print("Located expand button.")
+    
         button_element.click()
     except NoSuchElementException:
-        return "No food truck listed for today."
+        return "Schedule fetch error 2"
 
     # check events within subframe for food trucks, return truck if match
-    events_subframe = driver.find_elements(
-        By.XPATH, "//div[contains(@class, 'CalendarPopover')]")[2]
+    time.sleep(2)
+
+    events_subframe = driver.find_elements(By.XPATH, "//div[contains(@class, 'CalendarPopover')]")[2]
+    
     event_elements = events_subframe.find_elements(
         By.XPATH, ".//div[contains(@class, 'EventTitle')]")
+    
     key_phrases = ["Food Truck", "FoodTruck", "food truck",
                    "Philly Express", "Mirasol Mexican Grill", "Brick Oven Pizza Bus"]
+    
     truck = ""
+
     for element in event_elements:
         for phrase in key_phrases:
             if phrase in element.text:
@@ -447,6 +473,8 @@ def insight():
     driver.close()
 
     if truck:
+        if "food truck" in truck:
+            truck = truck.replace("food truck", "").strip()
         return truck
     else:
         return "No food truck listed for today."
@@ -525,7 +553,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.now().hour
-        if hour == 12:
+        if hour == 13:
             truck_data = scrape()
             # pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
