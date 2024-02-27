@@ -1,9 +1,8 @@
 '''Retrieves local brewery food trucks operating today in the Twin Cities, MN.
 Publishes data to a hosted json bin.'''
-from h11 import Data
 import requests
 from bs4 import BeautifulSoup
-import datetime
+from datetime import datetime, timedelta
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.chrome.service import Service
@@ -29,7 +28,7 @@ def webdriver_init():
 # date-time varialbes for classes
 class DateData:
     def __init__(self):
-        self.now = datetime.datetime.now()
+        self.now = datetime.now()
         self.weekday_str = self.now.strftime("%A")
         self.today_num = self.now.strftime("%d")
         self.today_num_no_zero = None
@@ -40,21 +39,40 @@ class DateData:
         self.month_year = self.now.strftime("%m-%Y")
         self.month_day = self.now.strftime("%B %-d")
         self.year_month_day = self.now.strftime("%Y-%m-%d")
+        self.mdy_slashes = self.now.strftime("%-m/%-d/%-y")
+        # Bauhaus needs Monday date of current week in MM/DD/YY
+        self.bauhaus_date = (datetime.today() - timedelta(days = datetime.today().weekday())).strftime("%-m/%-d/%-y")
 
 # -------------------- per-brewery scrape functions -------------------- #
 
 # beautifulsoup:
 def bauhaus():
     calendar = DateData()
-    weekday_str = calendar.weekday_str
+    monday_date = calendar.bauhaus_date
+    # print(f"This week's monday: {monday_date}")
 
     response = requests.get("https://www.bauhausbrewlabs.com/food")
     html = response.text
     soup = BeautifulSoup(html, "html.parser")
-    schedule = soup.find("div", class_="sqs-html-content")
-    truck = schedule.select(
-        f'p:-soup-contains("{weekday_str.upper()}")')[0].get_text().split("-")[1].strip()
-    return truck.title()
+
+    schedule_element = soup.find("div", class_="sqs-html-content")
+
+    if schedule_element:
+        # print("Schedule element located.")
+        schedule_week = schedule_element.select_one('h2').text.split('OF')[1].strip()
+        # print(f"Schedule week: {schedule_week}")
+        if schedule_week == monday_date:
+            # print("Schedule week matches this week.")
+            truck = schedule_element.select(
+                            f'p:-soup-contains("{weekday_str.upper()}")')[0].get_text().split("-")[1].strip()
+            print(f"Today's food truck: {truck}")
+            return truck.title()
+        else:
+            # print("Schedule unavailable.")
+            return "Schedule unavailable"
+
+    else:
+        return "Schedule fetch error."
 
 
 def elm_creek():
@@ -271,7 +289,9 @@ def bad_weather():
     driver.close()
 
     if truck:  # will contain food/truck text in this case
-        if ")" in truck:
+        if "(Copy)" in truck:
+            truck = truck.replace("(Copy)", "").strip()
+        elif ")" in truck:
             truck = truck.split(")")[1].strip()
         else:
             pass
@@ -496,13 +516,13 @@ def fetch():
 
 
 def timestamp():
-    return datetime.datetime.now().strftime('%m/%d/%Y - %H:%M')
+    return datetime.now().strftime('%m/%d/%Y - %H:%M')
 
 
 if __name__ == "__main__":
     while True:
-        hour = datetime.datetime.now().hour
-        if hour == 10:
+        hour = datetime.now().hour
+        if hour == 12:
             truck_data = scrape()
             # pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
