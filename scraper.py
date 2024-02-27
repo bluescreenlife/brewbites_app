@@ -48,6 +48,7 @@ class DateData:
 # beautifulsoup:
 def bauhaus():
     calendar = DateData()
+    weekday_str = calendar.weekday_str
     monday_date = calendar.bauhaus_date
     # print(f"This week's monday: {monday_date}")
 
@@ -289,12 +290,14 @@ def bad_weather():
     driver.close()
 
     if truck:  # will contain food/truck text in this case
+
+        # catch site error where (Copy) is at the end of the str
         if "(Copy)" in truck:
             truck = truck.replace("(Copy)", "").strip()
-        elif ")" in truck:
+
+        # remove (Food Truck) text from str
+        if ")" in truck:
             truck = truck.split(")")[1].strip()
-        else:
-            pass
 
         return truck
     else:
