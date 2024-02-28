@@ -552,7 +552,7 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.now().hour
-        if hour == 7:
+        if hour == 15:
             truck_data = scrape()
             print("\nScraped data:\n")
             print(truck_data)
