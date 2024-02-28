@@ -16,7 +16,6 @@ import json
 
 # webdriver setup
 def webdriver_init():
-    # service = Service("/Users/andrew/Developer/chromedriver")
     service = Service(ChromeDriverManager().install())
     chrome_options = webdriver.ChromeOptions()
     chrome_options.add_argument("--headless")
@@ -553,9 +552,8 @@ def timestamp():
 if __name__ == "__main__":
     while True:
         hour = datetime.now().hour
-        if hour == 13:
+        if hour == 9:
             truck_data = scrape()
-            # pretty_truck_data = json.dumps(truck_data, indent=2)
             print("\nScraped data:\n")
             print(truck_data)
             if truck_data:
