@@ -1,4 +1,4 @@
-from flask import Flask, abort, render_template, redirect, url_for, flash
+from flask import Flask, abort, render_template, redirect, url_for, flash, jsonify, request
 from flask_bootstrap import Bootstrap5
 from flask_sqlalchemy import SQLAlchemy
 from flask_wtf import FlaskForm
@@ -336,6 +336,26 @@ def edit(type, id):
             return redirect(url_for("trucks"))
 
     return render_template("edit.html", form=edit_form, type=type.title())
+
+@app.route("/update_trucks", methods=['POST'])
+def update_trucks():
+    data = request.json
+    updated_breweries = 0
+    not_found = []
+
+    for name, truck in data.items():
+        brewery = db.session.execute(db.select(Brewery).where(Brewery.name == name)).scalar()
+        if brewery:
+            brewery.todays_food = truck
+            updated_breweries += 1
+        else:
+            not_found.append(name)
+    
+    db.session.commit()
+    
+    if not_found:
+        return jsonify({"message": "Updates complete", "updated_breweries": updated_breweries, "not_found": not_found}), 404
+    return jsonify({"message": "All updates successful", "updated_breweries": updated_breweries}), 200
 
 @app.route("/map")
 def map():
