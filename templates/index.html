@@ -1,16 +1,15 @@
 {% extends 'base.html' %}
-{% block title %}Breweries{% endblock %}
+{% block title %}Home{% endblock %}
 {% block content %}
 <!-- hero -->
-<div class="px-4 py-5 my-5 text-center">
-    <!-- <img class="d-block mx-auto mb-4" src="/docs/5.3/assets/brand/bootstrap-logo.svg" alt="" width="72" height="57"> -->
-    <h1 class="display-5 fw-bold text-body-emphasis">Beer + Food.</h1>
-    <div class="col-lg-6 mx-auto">
-      <p class="lead mb-4">Quickly and easily find great food at breweries near you today.</p>
-      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-        <button type="button" class="btn btn-primary btn-lg px-4 gap-3">Primary button</button>
-        <button type="button" class="btn btn-outline-secondary btn-lg px-4">Secondary</button>
-      </div>
+<div class="px-4 py-5 my-5 text-center" style="background-image: url('../static/images/truck-lineup.jpeg'); background-size: cover; background-position: center;">
+  <h1 class="display-5 fw-bold text-body-emphasis">Beer + Food</h1>
+  <div class="col-lg-6 mx-auto">
+    <p class="lead mb-4">A match made in heaven. Find tasty food trucks at breweries near you today.</p>
+    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+      <a href="{{ url_for('breweries') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Breweries</a>
+      <a href="{{ url_for('trucks') }}" class="btn btn-outline-secondary btn-lg px-4">Browse Trucks</a>
     </div>
   </div>
+</div>
 {% endblock %}
