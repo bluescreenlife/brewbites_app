@@ -18,13 +18,15 @@
 </style>
 
 <!-- hero -->
-<div class="px-4 py-5 my-5 text-center overlay" style="background-image: url('../static/images/truck-lineup.jpeg'); background-size: cover; background-position: center;">
-  <h1 class="display-5 fw-bold text-white">Beer + Food</h1>
-  <div class="col-lg-6 mx-auto">
-    <p class="lead text-white mb-4">A match made in heaven. Find tasty food trucks at breweries near you today.</p>
-    <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
-      <a href="{{ url_for('breweries') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Breweries</a>
-      <a href="{{ url_for('trucks') }}" class="btn btn-primary btn-lg px-4">Browse Trucks</a>
+<div class="px-4 py-5 my-5 text-center" style="position: relative;">
+  <div class="overlay" style="background-image: url('../static/images/truck-lineup.jpeg'); background-size: cover; background-position: center;">
+    <h1 class="display-5 fw-bold text-white">Beer + Food</h1>
+    <div class="col-lg-6 mx-auto">
+      <p class="lead text-white mb-4">A match made in heaven. Find tasty food trucks at breweries near you today.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
+        <a href="{{ url_for('breweries') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Breweries</a>
+        <a href="{{ url_for('trucks') }}" class="btn btn-outline-secondary btn-lg px-4">Browse Trucks</a>
+      </div>
     </div>
   </div>
 </div>
