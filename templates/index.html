@@ -1,14 +1,30 @@
 {% extends 'base.html' %}
 {% block title %}Home{% endblock %}
 {% block content %}
+<style>
+.overlay::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); /* Adjust the alpha value to control the darkness of the overlay */
+}
+
+.text-white {
+  color: white;
+}
+</style>
+
 <!-- hero -->
-<div class="px-4 py-5 my-5 text-center" style="background-image: url('../static/images/truck-lineup.jpeg'); background-size: cover; background-position: center;">
-  <h1 class="display-5 fw-bold text-body-emphasis">Beer + Food</h1>
+<div class="px-4 py-5 my-5 text-center overlay" style="background-image: url('../static/images/truck-lineup.jpeg'); background-size: cover; background-position: center;">
+  <h1 class="display-5 fw-bold text-white">Beer + Food</h1>
   <div class="col-lg-6 mx-auto">
-    <p class="lead mb-4">A match made in heaven. Find tasty food trucks at breweries near you today.</p>
+    <p class="lead text-white mb-4">A match made in heaven. Find tasty food trucks at breweries near you today.</p>
     <div class="d-grid gap-2 d-sm-flex justify-content-sm-center">
       <a href="{{ url_for('breweries') }}" class="btn btn-primary btn-lg px-4 gap-3">Browse Breweries</a>
-      <a href="{{ url_for('trucks') }}" class="btn btn-outline-secondary btn-lg px-4">Browse Trucks</a>
+      <a href="{{ url_for('trucks') }}" class="btn btn-primary btn-lg px-4">Browse Trucks</a>
     </div>
   </div>
 </div>
