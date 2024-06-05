@@ -10,10 +10,18 @@ from sqlalchemy.orm import relationship, DeclarativeBase, Mapped, mapped_column
 from sqlalchemy import Boolean, Integer, Nullable, String, Text, Float, select
 from functools import wraps
 import os
+from dotenv import load_dotenv
+from config import config
+
+load_dotenv()
 
 # ------------------------- FLASK SETUP ------------------------- #
 app = Flask(__name__)
-app.config['SECRET_KEY'] = os.environ.get("SECRET_KEY")
+
+# Determine the environment and set the appropriate config
+env = os.environ.get('FLASK_ENV', 'development')
+app.config.from_object(config[env])
+
 Bootstrap5(app)
 # ------------------------- LOGIN SETUP ------------------------- #
 
@@ -38,9 +46,6 @@ def admin_only(f):
 # ------------------------- DB SETUP ------------------------- #
 class Base(DeclarativeBase):
     pass
-
-# MAIN BREWERY DB
-app.config['SQLALCHEMY_DATABASE_URI'] = os.environ.get("SQLALCHEMY_DATABASE_URI")
 
 db = SQLAlchemy(model_class=Base)
 db.init_app(app)
