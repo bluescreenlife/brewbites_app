@@ -1,306 +1,66 @@
-{% extends 'base.html' %}
-{% block title %}Home{% endblock %}
+{% extends 'base.html' %} 
+{% block title %}Home{% endblock %} 
 {% block content %}
-<main role="main">
-  <div id="myCarousel" class="carousel slide" data-ride="carousel">
-    <ol class="carousel-indicators">
-      <li data-target="#myCarousel" data-slide-to="0" class=""></li>
-      <li data-target="#myCarousel" data-slide-to="1" class=""></li>
-      <li data-target="#myCarousel" data-slide-to="2" class="active"></li>
-    </ol>
-    <div class="carousel-inner">
-      <div class="carousel-item">
-        <img
-          class="first-slide"
-          src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw=="
-          alt="First slide"
-        />
-        <div class="container">
-          <div class="carousel-caption text-left">
-            <h1>Breweries Love Food Trucks</h1>
-            <p>
-              And you love loving both. See your local breweries' food trucks
-              today, at a glance.
-            </p>
-            <p>
-              <a
-                class="btn btn-lg btn-primary"
-                href="{{ url_for('breweries') }}"
-                role="button"
-                >Let's Go</a
-              >
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item">
-        <img
-          class="second-slide"
-          src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw=="
-          alt="Second slide"
-        />
-        <div class="container">
-          <div class="carousel-caption">
-            <h1>Craving your favorite truck?</h1>
-            <p>
-              See where it's parked today on our extra special Food Trucks page.
-            </p>
-            <p>
-              <a
-                class="btn btn-lg btn-primary"
-                href="{{ url_for('trucks') }}"
-                role="button"
-                >I'm Hungry</a
-              >
-            </p>
-          </div>
-        </div>
-      </div>
-      <div class="carousel-item active">
-        <img
-          class="third-slide"
-          src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw=="
-          alt="Third slide"
-        />
-        <div class="container">
-          <div class="carousel-caption text-right">
-            <h1>Wanna hook up?</h1>
-            <p>
-              Are you a brewery or food truck? Create a BrewBites account and
-              start scheduling with ease.
-            </p>
-            <p>
-              <a
-                class="btn btn-lg btn-primary"
-                href="{{ url_for('sign_up') }}"
-                role="button"
-                >Sign me up!</a
-              >
-            </p>
-          </div>
-        </div>
+<main>
+  <div class="px-4 pt-5 my-5 text-center border-bottom">
+    <h1 class="display-4 fw-bold text-body-emphasis">You love beer and food trucks.
+      <p class="lead mb-4">And we love showing you who's where. Rather than digging through local brewery sites and social media to see where the food trucks are today, BrewBites does the work for you.</p>
+      <div class="d-grid gap-2 d-sm-flex justify-content-sm-center mb-5">
+        <a href="{{ url_for('breweries')}}" class="btn btn-primary btn-lg px-4 gap-3" role="button">Prove it.</a>
       </div>
     </div>
-    <a
-      class="carousel-control-prev"
-      href="#myCarousel"
-      role="button"
-      data-slide="prev"
-    >
-      <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-      <span class="sr-only">Previous</span>
-    </a>
-    <a
-      class="carousel-control-next"
-      href="#myCarousel"
-      role="button"
-      data-slide="next"
-    >
-      <span class="carousel-control-next-icon" aria-hidden="true"></span>
-      <span class="sr-only">Next</span>
-    </a>
   </div>
-
-  <!-- Marketing messaging and featurettes
-    ================================================== -->
-  <!-- Wrap the rest of the page in another container to center all the content. -->
-
-  <div class="container marketing">
-    <!-- Three columns of text below the carousel -->
-    <div class="row">
-      <div class="col-lg-4">
-        <img
-          class="rounded-circle"
-          src="/static/images/hero1.jpeg"
-          alt="Homer Simpson drooling"
-          width="140"
-          height="140"
-        />
-        <h2>Beer + Food</h2>
-        <p>
-          Everyone's favorite combo. Brewbites shows you which food trucks your
-          local breweries have each day, at-a-glance.
-        </p>
-        <p>
-          <a
-            class="btn btn-secondary"
-            href="{{ url_for('breweries') }}"
-            role="button"
-            >See Breweries »</a
-          >
-        </p>
+  <div class="b-example-divider"></div>
+  <div class="container px-4 py-5" id="hanging-icons">
+    <h2 class="pb-2 border-bottom">Tell me more.</h2>
+    <div class="row g-4 py-5 row-cols-1 row-cols-lg-3">
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <!-- <svg class="bi" width="1em" height="1em"><use xlink:href="#toggles2"></use></svg> --> 
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-motherboard" viewBox="0 0 16 16">
+            <path d="M11.5 2a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m2 0a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5m-10 8a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zm0 2a.5.5 0 0 0 0 1h6a.5.5 0 0 0 0-1zM5 3a1 1 0 0 0-1 1h-.5a.5.5 0 0 0 0 1H4v1h-.5a.5.5 0 0 0 0 1H4a1 1 0 0 0 1 1v.5a.5.5 0 0 0 1 0V8h1v.5a.5.5 0 0 0 1 0V8a1 1 0 0 0 1-1h.5a.5.5 0 0 0 0-1H9V5h.5a.5.5 0 0 0 0-1H9a1 1 0 0 0-1-1v-.5a.5.5 0 0 0-1 0V3H6v-.5a.5.5 0 0 0-1 0zm0 1h3v3H5zm6.5 7a.5.5 0 0 0-.5.5v1a.5.5 0 0 0 .5.5h2a.5.5 0 0 0 .5-.5v-1a.5.5 0 0 0-.5-.5z"/>
+            <path d="M1 2a2 2 0 0 1 2-2h11a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2v-2H.5a.5.5 0 0 1-.5-.5v-1A.5.5 0 0 1 .5 9H1V8H.5a.5.5 0 0 1-.5-.5v-1A.5.5 0 0 1 .5 6H1V5H.5a.5.5 0 0 1-.5-.5v-2A.5.5 0 0 1 .5 2zm1 11a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H3a1 1 0 0 0-1 1z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">How it works</h3>
+          <p>A super smart computer runs code written by a hungry programmer every morning at 11AM to retrieve food truck names from local brewery sites.</p>
+          <!-- <a href="#" class="btn btn-primary">
+            Primary button
+          </a> -->
+        </div>
       </div>
-      <!-- /.col-lg-4 -->
-      <div class="col-lg-4">
-        <img
-          class="rounded-circle"
-          src="/static/images/hero2.jpeg"
-          alt="Hungry person holding stomach"
-          width="140"
-          height="140"
-        />
-        <h2>Got a hankering?</h2>
-        <p>
-          Sometimes you just want to know who's hosting that delicious fried
-          chicken food truck today. Brewbites has a special page just for that.
-        </p>
-        <p>
-          <a
-            class="btn btn-secondary"
-            href="{{ url_for('trucks') }}"
-            role="button"
-            >See Trucks »</a
-          >
-        </p>
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <!-- <svg class="bi" width="1em" height="1em"><use xlink:href="#cpu-fill"></use></svg> -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-funnel" viewBox="0 0 16 16">
+            <path d="M1.5 1.5A.5.5 0 0 1 2 1h12a.5.5 0 0 1 .5.5v2a.5.5 0 0 1-.128.334L10 8.692V13.5a.5.5 0 0 1-.342.474l-3 1A.5.5 0 0 1 6 14.5V8.692L1.628 3.834A.5.5 0 0 1 1.5 3.5zm1 .5v1.308l4.372 4.858A.5.5 0 0 1 7 8.5v5.306l2-.666V8.5a.5.5 0 0 1 .128-.334L13.5 3.308V2z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">Sort it your way</h3>
+          <p>View who's paired up today by brewery or by food truck using the links in the navbar above.</p>
+          <!-- <a href="#" class="btn btn-primary">
+            Primary button
+          </a> -->
+        </div>
       </div>
-      <!-- /.col-lg-4 -->
-      <div class="col-lg-4">
-        <img
-          class="rounded-circle"
-          src="/static/images/hero3.jpeg"
-          alt="Wayne's World characters"
-          width="140"
-          height="140"
-        />
-        <h2>Let's Be Friends</h2>
-        <p>
-          BrewBites allows breweries and food trucks to link up, schedule time
-          together, and reach a hungry audience.
-        </p>
-        <p>
-          <a
-            class="btn btn-secondary"
-            href="{{ url_for('sign_up') }}"
-            role="button"
-            >Register now »</a
-          >
-        </p>
-      </div>
-      <!-- /.col-lg-4 -->
-    </div>
-    <!-- /.row -->
-
-    <!-- START THE FEATURETTES -->
-
-    <hr class="featurette-divider" />
-
-    <div class="row featurette">
-      <div class="col-md-7">
-        <h2 class="featurette-heading">
-          Featured Brewery: Forgotten Star Brewing
-          <!-- <span class="text-muted">It'll blow your mind.</span> -->
-        </h2>
-        <p class="lead">Founded in 2019 in Fridley, Minnesota, Forgotten Star Brewing was forged from a building rich with history and defined by Excellence and Efficiency. Today, they incorporate these values into every aspect of their brewery, from their brewing process and taproom space, to their people, atmosphere and beer.
-        </p>
-      </div>
-      <div class="col-md-5">
-        <img
-          class="featurette-image img-fluid mx-auto"
-          data-src="holder.js/500x500/auto"
-          alt="500x500"
-          style="width: 500px; height: 500px"
-          src="/static/images/featured_brewery.jpeg"
-          data-holder-rendered="true"
-        />
+      <div class="col d-flex align-items-start">
+        <div class="icon-square text-body-emphasis d-inline-flex align-items-center justify-content-center fs-4 flex-shrink-0 me-3">
+          <!-- <svg class="bi" width="1em" height="1em"><use xlink:href="#tools"></use></svg> -->
+          <svg xmlns="http://www.w3.org/2000/svg" width="1.5em" height="1.5em" fill="currentColor" class="bi bi-wrench" viewBox="0 0 16 16">
+            <path d="M.102 2.223A3.004 3.004 0 0 0 3.78 5.897l6.341 6.252A3.003 3.003 0 0 0 13 16a3 3 0 1 0-.851-5.878L5.897 3.781A3.004 3.004 0 0 0 2.223.1l2.141 2.142L4 4l-1.757.364zm13.37 9.019.528.026.287.445.445.287.026.529L15 13l-.242.471-.026.529-.445.287-.287.445-.529.026L13 15l-.471-.242-.529-.026-.287-.445-.445-.287-.026-.529L11 13l.242-.471.026-.529.445-.287.287-.445.529-.026L13 11z"/>
+          </svg>
+        </div>
+        <div>
+          <h3 class="fs-2 text-body-emphasis">More to come</h3>
+          <p>Additional features are in the works, such as a map displaying food truck-brewery pairs, and a place to leave reviews.</p>
+          <!-- <a href="#" class="btn btn-primary">
+            Primary button
+          </a> -->
+        </div>
       </div>
     </div>
-
-    <hr class="featurette-divider" />
-
-    <div class="row featurette">
-      <div class="col-md-7 order-md-2">
-        <h2 class="featurette-heading">
-          Featured Food Truck: HodgePodge Eats
-          <!-- <span class="text-muted">See for yourself.</span> -->
-        </h2>
-        <p class="lead">Their menu is a Midwest-inspired, food-for-all kind of menu. This shines through the variety of menu items, unique midwestern ingredients, and approachable price-point. You’ll find satisfying burgers, healthy-ish appetizers, and plenty of shareables. And if you’re a beer nerd, they have recommended Forgotten Star tap parings for each menu item. They even have a kids menu and a soft-serve machine!</p>
-      </div>
-      <div class="col-md-5 order-md-1">
-        <img
-          class="featurette-image img-fluid mx-auto"
-          data-src="holder.js/500x500/auto"
-          alt="500x500"
-          style="width: 500px; height: 500px"
-          src="/static/images/featured_truck.jpeg"
-          data-holder-rendered="true"
-        />
-      </div>
-    </div>
-
-    <hr class="featurette-divider" />
-
-    <div class="row featurette">
-      <div class="col-md-7">
-        <h2 class="featurette-heading">
-          Featured review: TBD
-          <!-- <span class="text-muted">Checkmate.</span> -->
-        </h2>
-        <p class="lead">
-          An extra special review left for a brewery or food truck shall one day
-          appear here.
-        </p>
-      </div>
-      <div class="col-md-5">
-        <img
-          class="featurette-image img-fluid mx-auto"
-          data-src="holder.js/500x500/auto"
-          alt="500x500"
-          style="width: 500px; height: 500px"
-          src="data:image/svg+xml;charset=UTF-8,%3Csvg%20width%3D%22500%22%20height%3D%22500%22%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%20500%20500%22%20preserveAspectRatio%3D%22none%22%3E%3Cdefs%3E%3Cstyle%20type%3D%22text%2Fcss%22%3E%23holder_18eb49c8fb9%20text%20%7B%20fill%3A%23AAAAAA%3Bfont-weight%3Abold%3Bfont-family%3AArial%2C%20Helvetica%2C%20Open%20Sans%2C%20sans-serif%2C%20monospace%3Bfont-size%3A25pt%20%7D%20%3C%2Fstyle%3E%3C%2Fdefs%3E%3Cg%20id%3D%22holder_18eb49c8fb9%22%3E%3Crect%20width%3D%22500%22%20height%3D%22500%22%20fill%3D%22%23EEEEEE%22%3E%3C%2Frect%3E%3Cg%3E%3Ctext%20x%3D%22185.12109375%22%20y%3D%22261.1%22%3E500x500%3C%2Ftext%3E%3C%2Fg%3E%3C%2Fg%3E%3C%2Fsvg%3E"
-          data-holder-rendered="true"
-        />
-      </div>
-    </div>
-
-    <hr class="featurette-divider" />
-
-    <!-- /END THE FEATURETTES -->
   </div>
-  <!-- /.container -->
 </main>
-
-<!-- <svg
-  xmlns="http://www.w3.org/2000/svg"
-  width="500"
-  height="500"
-  viewBox="0 0 500 500"
-  preserveAspectRatio="none"
-  style="
-    display: none;
-    visibility: hidden;
-    position: absolute;
-    top: -100%;
-    left: -100%;
-  "
->
-  <defs><style type="text/css"></style></defs>
-  <text
-    x="0"
-    y="25"
-    style="
-      font-weight: bold;
-      font-size: 25pt;
-      font-family: Arial, Helvetica, Open Sans, sans-serif;
-    "
-  >
-    500x500
-  </text>
-</svg> -->
-{% endblock %}
-{% block scripts %}
-<script
-  src="https://code.jquery.com/jquery-3.2.1.slim.min.js"
-  integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN"
-  crossorigin="anonymous"
-></script>
-<script>
-  window.jQuery ||
-    document.write(
-      '<script src="../../assets/js/vendor/jquery-slim.min.js"><\/script>'
-    );
-</script>
-<script src="../../assets/js/vendor/popper.min.js"></script>
-<script src="../../dist/js/bootstrap.min.js"></script>
-<!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-<script src="../../assets/js/vendor/holder.min.js"></script>
 {% endblock %}
